@@ -2,6 +2,10 @@
   "name": "zillas-backend",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start": "bun index.ts",
+    "watch": "bun --watch index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -10,6 +14,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.17.0",
+    "@types/cors": "^2.8.17",
     "@types/passport": "^1.0.16",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
