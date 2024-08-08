@@ -23,16 +23,16 @@ enum Gender {
 }
 
 model Users {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  username         String    @unique
-  email            String?   @unique
-  telephone        String    @unique
+  id               String     @id @default(auto()) @map("_id") @db.ObjectId
+  username         String     @unique
+  email            String?    @unique
+  telephone        String     @unique
   withdrawPassword String
   gender           Gender
-  status           UsersEnum @default(PENDING)
+  status           UsersEnum? @default(PENDING)
   password         String
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime?  @default(now())
+  updatedAt        DateTime?  @updatedAt
 }
 
 model Wallet {

@@ -21,7 +21,9 @@ const createAccountController = async (req: Request, res: Response) => {
       invitationCode,
     } = req.body;
 
-    const user = await prismaInstance.users.findUnique(telephone);
+    const user = await prismaInstance.users.findUnique({
+      where: { telephone },
+    });
     if (!user) {
       const hashedPassword = await bcrypt.hash(password, 10);
       await prismaInstance.users.create({
@@ -53,6 +55,7 @@ const createAccountController = async (req: Request, res: Response) => {
         errors: err.errors,
       });
     } else {
+      console.log(err);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -62,31 +65,37 @@ const createAccountController = async (req: Request, res: Response) => {
 
 const loginController = async (req: Request, res: Response) => {
   try {
-    await loginSchema.validate(req.body, { abortEarly: false });
+    await loginSchema.validate(req.body);
+    const { telephone, password } = req.body;
 
-    const { email, password } = req.body;
-
-    const user = users.find((u) => u.email === email);
-    if (!user) {
-      return res.status(401).json({
-        message: "Invalid email or password",
+    const isUser = await prismaInstance.users.findFirst({
+      where: {
+        telephone,
+      },
+    });
+    //@ts-ignore
+    const isPasswordCorrect = await bcrypt.compare(password, isUser.password);
+    if (!isUser) {
+      return res.status(StatusCode.NotFound).json({
+        message: "User not found",
       });
     }
 
-    // Check the password
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        message: "Invalid email or password",
+    if (!isPasswordCorrect) {
+      return res.status(StatusCode.BadRequest).json({
+        message: "Invalid credentials",
       });
     }
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
+
+    return res.status(StatusCode.OK).json({
+      message: "Logged in successfully",
+      data: {
+        username: isUser.username,
+        email: isUser.email,
+        telephone: isUser.telephone,
+      },
+      token: {
+        token: "",
       },
     });
   } catch (err) {
@@ -96,6 +105,7 @@ const loginController = async (req: Request, res: Response) => {
         errors: err.errors,
       });
     } else {
+      console.log(err);
       res.status(500).json({
         message: "Internal server error",
       });

@@ -13,10 +13,10 @@ const createAccountSchema = yup.object().shape({
 });
 
 const loginSchema = yup.object().shape({
-  email: yup
+  telephone: yup
     .string()
-    .email("Invalid email format")
-    .required("Email is required"),
+    .matches(/^\d{11}$/, "Telephone must be exactly 10 digits")
+    .required("Telephone is required"),
   password: yup.string().required("Password is required"),
 });
 
