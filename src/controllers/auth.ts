@@ -4,6 +4,7 @@ import {
   createAccountSchema,
   loginSchema,
 } from "../validations/auth.validation";
+import bcrypt from "bcrypt";
 
 const createAccountController  = async (req: Request, res: Response) => {
   try {

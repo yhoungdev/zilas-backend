@@ -26,7 +26,7 @@ app.get("/", (req: Request, res: Response) => {
 ROUTES_CONSTANT.forEach((routeConfig) => {
   if (routeConfig.route) {
     //@ts-ignore
-    app.use(`/api/v1/${routeConfig.title.toLowerCase()}`, routeConfig.route);
+    app.use(`/api/v1/`, routeConfig.route);
   }
 });
 
