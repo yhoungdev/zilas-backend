@@ -4,16 +4,12 @@ const createAccountSchema = yup.object().shape({
   username: yup.string().required("Username is required"),
   telephone: yup
     .string()
-    .matches(/^\d{10}$/, "Telephone must be exactly 10 digits")
+    .matches(/^\d{11}$/, "Telephone must be exactly 10 digits")
     .required("Telephone is required"),
   withdrawPassword: yup.string().required("Withdraw Password is required"),
   loginPassword: yup.string().required("Login Password is required"),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("loginPassword"), null], "Passwords must match")
-    .required("Confirm Password is required"),
   gender: yup.string().required("Gender is required"),
-  invitationCode: yup.string().required("Invitation Code is required"),
+  invitationCode: yup.string().optional(),
 });
 
 const loginSchema = yup.object().shape({

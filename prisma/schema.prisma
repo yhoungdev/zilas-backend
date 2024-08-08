@@ -17,11 +17,28 @@ enum UsersEnum {
   VERIFIED
 }
 
+enum Gender {
+  Male
+  Female
+}
+
 model Users {
-  id        String   @id @map("_id") @db.ObjectId
-  username  String   @unique
-  email     String   @unique
-  password  String
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  username         String    @unique
+  email            String?   @unique
+  telephone        String    @unique
+  withdrawPassword String
+  gender           Gender
+  status           UsersEnum @default(PENDING)
+  password         String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Wallet {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  amount    Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -1,6 +1,5 @@
 import authRouter from "../routes/auth.route";
 
-
 export const ROUTES_CONSTANT = [
   {
     title: "Auth",
@@ -8,6 +7,6 @@ export const ROUTES_CONSTANT = [
   },
   {
     title: "admin",
-    route: '',
+    route: "",
   },
 ];

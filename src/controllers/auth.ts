@@ -5,24 +5,46 @@ import {
   loginSchema,
 } from "../validations/auth.validation";
 import bcrypt from "bcrypt";
+import { prismaInstance } from "../utils/prisma";
+import { StatusCode } from "../enums/statusEnum";
 
-const createAccountController  = async (req: Request, res: Response) => {
+const createAccountController = async (req: Request, res: Response) => {
+  console.log(req.body);
   try {
-    await createAccountSchema.validate(req.body, { abortEarly: false });
+    await createAccountSchema.validate(req.body);
+    const {
+      username,
+      telephone,
+      withdrawPassword,
+      password,
+      gender,
+      invitationCode,
+    } = req.body;
 
-    const { firstName, lastName, email, phoneNumber } = req.body;
+    const user = await prismaInstance.users.findUnique(telephone);
+    if (!user) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await prismaInstance.users.create({
+        data: {
+          username,
+          telephone,
+          password: hashedPassword,
+          gender,
+          withdrawPassword,
+        },
+      });
+      return res.status(StatusCode.Created).json({
+        message: "Account created successfully",
+        data: {
+          username,
+          telephone,
+          gender,
+        },
+      });
+    }
 
-    const newAccount = {
-      id: Date.now(),
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-    };
-
-    res.status(201).json({
-      message: "Account created successfully",
-      account: newAccount,
+    return res.status(StatusCode.BadRequest).json({
+      message: "User already exists",
     });
   } catch (err) {
     if (err instanceof yup.ValidationError) {
@@ -38,7 +60,7 @@ const createAccountController  = async (req: Request, res: Response) => {
   }
 };
 
-const loginController  = async (req: Request, res: Response) => {
+const loginController = async (req: Request, res: Response) => {
   try {
     await loginSchema.validate(req.body, { abortEarly: false });
 

@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "start": "bun index.ts",
-    "watch": "bun --watch index.ts"
+    "watch": "bun --watch index.ts",
+    "generate": "npx prisma generate",
+    "format": "prettier --write ./src",
+    "push": "npx prisma db push"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -13,7 +16,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@prisma/client": "^5.17.0",
+    "@prisma/client": "^5.18.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/node": "^22.1.0",
@@ -23,6 +26,7 @@
     "express": "^4.19.2",
     "nanoid": "^5.0.7",
     "passport": "^0.7.0",
+    "prettier": "^3.3.3",
     "prisma": "^5.18.0",
     "ts-node": "^10.9.2",
     "yup": "^1.4.0"
