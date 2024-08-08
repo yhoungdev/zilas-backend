@@ -23,9 +23,11 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200).json({ message: "server for zilas project" });
 });
 
-ROUTES_CONSTANT.map((_) => {
-  //@ts-ignore
-  app.use("/api/v1", _.route);
+ROUTES_CONSTANT.forEach((routeConfig) => {
+  if (routeConfig.route) {
+    //@ts-ignore
+    app.use(`/api/v1/${routeConfig.title.toLowerCase()}`, routeConfig.route);
+  }
 });
 
 app.listen(PORT, () => {
