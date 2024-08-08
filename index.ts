@@ -19,7 +19,7 @@ const corsConfig = {
 
 app.use(cors(corsConfig));
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/api/v1", (req: Request, res: Response) => {
   res.status(200).json({ message: "server for zilas project" });
 });
 
