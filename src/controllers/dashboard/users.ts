@@ -1,8 +1,6 @@
 import type { Request, Response } from "express";
 import { prismaInstance } from "../../utils/prisma";
 import { StatusCode } from "../../enums/statusEnum";
-import lodash from "lodash";
-import { password } from "bun";
 
 export const listAllUsersController = async (req: Request, res: Response) => {
   try {
@@ -86,7 +84,9 @@ export const verifyUserController = async (req: Request, res: Response) => {
 
     return res.status(StatusCode.OK).json({
       message: `User status has been update to ${status === true ? "verified" : "pending"} successfully`,
-      data: user,
+      data: {
+        status: status === true ? "VERIFIED" : "PENDING",
+      },
     });
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
@@ -95,4 +95,33 @@ export const verifyUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUserController = async (req: Request, res: Response) => {};
+export const deleteUserController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const user = await prismaInstance.users.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return res.status(StatusCode.NotFound).json({
+        message: "User not found",
+      });
+    }
+
+    const deleteuser = await prismaInstance.users.delete({
+      where: { id },
+    });
+    if (!deleteuser)
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "Failed to delete user" });
+
+    return res.status(StatusCode.OK).json({
+      message: "User deleted successfully",
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+    });
+  }
+};
