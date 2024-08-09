@@ -7,6 +7,7 @@ import {
 import { prismaInstance } from "../utils/prisma";
 import { StatusCode } from "../enums/statusEnum";
 import { comparePasswords, hashPassword } from "../utils/hashPassword";
+import { signJwt } from "../utils/jwt";
 
 const createAccountController = async (req: Request, res: Response) => {
   try {
@@ -41,6 +42,10 @@ const createAccountController = async (req: Request, res: Response) => {
           phoneNumber,
           gender,
         },
+        token: signJwt({
+          id: user?.id,
+          username,
+        }),
       });
     }
     return res.status(StatusCode.BadRequest).json({
@@ -73,6 +78,7 @@ const loginController = async (req: Request, res: Response) => {
     });
     //@ts-ignore
     const isPasswordCorrect = await comparePasswords(password, isUser.password);
+    console.log(isPasswordCorrect);
     if (!isUser) {
       return res.status(StatusCode.NotFound).json({
         message: "User not found",
@@ -93,7 +99,10 @@ const loginController = async (req: Request, res: Response) => {
         phoneNumber: isUser.phoneNumber,
       },
       token: {
-        token: "",
+        token: signJwt({
+          id: isUser.id,
+          username: isUser.username,
+        }),
       },
     });
   } catch (err) {
