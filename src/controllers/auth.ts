@@ -41,6 +41,7 @@ const createAccountController = async (req: Request, res: Response) => {
           username,
           phoneNumber,
           gender,
+          status: "PENDING",
         },
         token: signJwt({
           id: user?.id,

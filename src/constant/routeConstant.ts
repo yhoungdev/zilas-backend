@@ -1,4 +1,5 @@
 import authRouter from "../routes/auth.route";
+import { adminRoutes } from "../routes/dashboard";
 
 export const ROUTES_CONSTANT = [
   {
@@ -7,6 +8,6 @@ export const ROUTES_CONSTANT = [
   },
   {
     title: "admin",
-    route: "",
+    route: adminRoutes,
   },
 ];

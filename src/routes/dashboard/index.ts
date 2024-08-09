@@ -5,4 +5,4 @@ const router = express.Router();
 
 router.get("/admin/users", listAllUsersController);
 
-export default router;
+export const adminRoutes = router;
