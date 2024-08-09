@@ -26,7 +26,7 @@ model Users {
   id               String     @id @default(auto()) @map("_id") @db.ObjectId
   username         String     @unique
   email            String?    @unique
-  telephone        String     @unique
+  phoneNumber      String     @unique
   withdrawPassword String
   gender           Gender
   status           UsersEnum? @default(PENDING)

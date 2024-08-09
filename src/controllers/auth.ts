@@ -4,32 +4,31 @@ import {
   createAccountSchema,
   loginSchema,
 } from "../validations/auth.validation";
-import bcrypt from "bcrypt";
 import { prismaInstance } from "../utils/prisma";
 import { StatusCode } from "../enums/statusEnum";
+import { comparePasswords, hashPassword } from "../utils/hashPassword";
 
 const createAccountController = async (req: Request, res: Response) => {
-  console.log(req.body);
   try {
     await createAccountSchema.validate(req.body);
     const {
       username,
-      telephone,
+      phoneNumber,
       withdrawPassword,
       password,
       gender,
       invitationCode,
     } = req.body;
-
     const user = await prismaInstance.users.findUnique({
-      where: { telephone },
+      where: { phoneNumber },
     });
+
+    const hashedPassword = await hashPassword(password);
     if (!user) {
-      const hashedPassword = await bcrypt.hash(password, 10);
       await prismaInstance.users.create({
         data: {
           username,
-          telephone,
+          phoneNumber,
           password: hashedPassword,
           gender,
           withdrawPassword,
@@ -39,12 +38,11 @@ const createAccountController = async (req: Request, res: Response) => {
         message: "Account created successfully",
         data: {
           username,
-          telephone,
+          phoneNumber,
           gender,
         },
       });
     }
-
     return res.status(StatusCode.BadRequest).json({
       message: "User already exists",
     });
@@ -66,15 +64,15 @@ const createAccountController = async (req: Request, res: Response) => {
 const loginController = async (req: Request, res: Response) => {
   try {
     await loginSchema.validate(req.body);
-    const { telephone, password } = req.body;
+    const { phoneNumber, password } = req.body;
 
     const isUser = await prismaInstance.users.findFirst({
       where: {
-        telephone,
+        phoneNumber,
       },
     });
     //@ts-ignore
-    const isPasswordCorrect = await bcrypt.compare(password, isUser.password);
+    const isPasswordCorrect = await comparePasswords(password, isUser.password);
     if (!isUser) {
       return res.status(StatusCode.NotFound).json({
         message: "User not found",
@@ -92,7 +90,7 @@ const loginController = async (req: Request, res: Response) => {
       data: {
         username: isUser.username,
         email: isUser.email,
-        telephone: isUser.telephone,
+        phoneNumber: isUser.phoneNumber,
       },
       token: {
         token: "",
