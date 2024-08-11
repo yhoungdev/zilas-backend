@@ -8,7 +8,7 @@ interface IData {
 
 export const signJwt = (data: IData) => {
   //@ts-ignore
-  const token = jsonwebtoken.sign(data, JWT_HASH, { expiresIn: "1h" });
+  const token = jsonwebtoken.sign(data, JWT_HASH, { expiresIn: "1d" });
   return token;
 };
 

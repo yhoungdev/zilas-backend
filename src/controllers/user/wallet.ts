@@ -7,7 +7,8 @@ export const addExternalWalletController = async (
 ) => {
   try {
     const { address, network } = req.body;
-    console.log(req?.user);
+    //@ts-ignore
+    const { id } = req?.user;
 
     if (!address || !network) {
       return res.status(400).json({
@@ -16,7 +17,7 @@ export const addExternalWalletController = async (
     }
 
     const addWallet = await prismaInstance.externalWallet.create({
-      data: { address, network },
+      data: { id, address, network },
     });
 
     if (!addWallet) {
@@ -24,6 +25,11 @@ export const addExternalWalletController = async (
         message: "Internal server error",
       });
     }
+
+    return res.status(201).json({
+      message: " Wallet  details sent successfully",
+      wallet: addWallet,
+    });
   } catch (err) {
     return res.status(500).json({
       message: "Internal server error",
