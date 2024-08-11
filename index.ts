@@ -34,6 +34,13 @@ ROUTES_CONSTANT.forEach((routeConfig) => {
   }
 });
 
+const logError = (error: any, location: string) => {
+  console.error(`Error at ${location}:`, {
+    message: error.message,
+    stack: error.stack,
+  });
+};
+
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   try {
@@ -41,5 +48,6 @@ app.listen(PORT, async () => {
     console.log("Connected to database");
   } catch (error) {
     console.error("Failed to connect to the database:", error);
+    logError(error, "Error from application");
   }
 });
