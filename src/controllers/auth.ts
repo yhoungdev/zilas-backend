@@ -21,6 +21,7 @@ const createAccountController = async (req: Request, res: Response) => {
       invitationCode,
     } = req.body;
 
+    const referalCode = `ZIL${username.toUpperCase()}`;
     const existingUser = await prismaInstance.users.findUnique({
       where: { phoneNumber },
     });
@@ -40,6 +41,7 @@ const createAccountController = async (req: Request, res: Response) => {
         gender,
         withdrawPassword,
         status: "PENDING",
+        referalCode: referalCode,
       },
     });
 

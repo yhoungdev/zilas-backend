@@ -29,6 +29,7 @@ model Users {
   createdAt        DateTime?  @default(now())
   updatedAt        DateTime?  @updatedAt
   Wallet           Wallet?
+  referalCode      String     @unique
 }
 
 model Wallet {
@@ -40,6 +41,13 @@ model Wallet {
   updatedAt     DateTime @updatedAt
   user          Users    @relation(fields: [userId], references: [id])
   userId        String   @unique @db.ObjectId
+}
+
+model ExternalWallet {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  address   String
+  network   String
+  createdAt DateTime @default(now())
 }
 
 datasource db {
