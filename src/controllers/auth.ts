@@ -33,6 +33,7 @@ const createAccountController = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await hashPassword(password);
+
     const newUser = await prismaInstance.users.create({
       data: {
         username,
@@ -43,12 +44,12 @@ const createAccountController = async (req: Request, res: Response) => {
         userRank: "VIP1",
         status: "PENDING",
         referalCode: referalCode,
+        Wallet: {
+          create: {},
+        },
       },
-    });
-
-    await prismaInstance.wallet.create({
-      data: {
-        userId: newUser.id,
+      include: {
+        Wallet: true,
       },
     });
 
@@ -65,6 +66,7 @@ const createAccountController = async (req: Request, res: Response) => {
         gender: newUser.gender,
         userRank: newUser.userRank,
         status: newUser.status,
+        wallet: newUser.Wallet,
       },
       token,
     });
@@ -82,6 +84,7 @@ const createAccountController = async (req: Request, res: Response) => {
     }
   }
 };
+
 
 
 const loginController = async (req: Request, res: Response) => {
