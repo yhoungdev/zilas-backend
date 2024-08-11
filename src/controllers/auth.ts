@@ -46,7 +46,12 @@ const createAccountController = async (req: Request, res: Response) => {
       },
     });
 
-    // Generate JWT token
+    await prismaInstance.wallet.create({
+      data: {
+        userId: newUser.id,
+      },
+    });
+
     const token = signJwt({
       id: newUser.id,
       username: newUser.username,
@@ -77,6 +82,7 @@ const createAccountController = async (req: Request, res: Response) => {
     }
   }
 };
+
 
 const loginController = async (req: Request, res: Response) => {
   try {
