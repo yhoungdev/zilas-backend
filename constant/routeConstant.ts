@@ -1,6 +1,7 @@
-import { defaultUsersRoute } from "../routes";
-import authRouter from "../routes/auth.route";
-import { adminRoutes } from "../routes/dashboard";
+import { defaultUsersRoute } from "../src/routes";
+import authRouter from "../src/routes/auth.route";
+
+import { adminRoutes } from "../src/routes/dashboard";
 
 export const ROUTES_CONSTANT = [
   {

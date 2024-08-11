@@ -1,6 +1,6 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
-import { ROUTES_CONSTANT } from "./src/constant/routeConstant";
+import { ROUTES_CONSTANT } from "./constant/routeConstant";
 const PORT = process.env.PORT || 3000;
 import env from "dotenv";
 const app = express();
