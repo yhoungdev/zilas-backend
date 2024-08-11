@@ -7,14 +7,13 @@ import {
   updateProductSchema,
 } from "../../../validations/admin";
 
+
+
 export const adminAddProductController = async (
   req: Request,
   res: Response,
 ) => {
   try {
-    await createProductSchema.validate(req.body);
-
-    const { name, price } = req.body;
     const imageFile = req.file;
 
     if (!imageFile) {
@@ -24,13 +23,17 @@ export const adminAddProductController = async (
       });
     }
 
-    const base64Image = imageFile.buffer.toString("base64");
+    req.body.image = imageFile.buffer.toString("base64");
+
+    await createProductSchema.validate(req.body);
+
+    const { name, price, image } = req.body;
 
     const newProduct = await prismaInstance.products.create({
       data: {
         name,
         price,
-        image: base64Image,
+        image,
       },
     });
 
