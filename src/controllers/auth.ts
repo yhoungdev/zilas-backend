@@ -20,47 +20,54 @@ const createAccountController = async (req: Request, res: Response) => {
       gender,
       invitationCode,
     } = req.body;
-    const user = await prismaInstance.users.findUnique({
+
+    const existingUser = await prismaInstance.users.findUnique({
       where: { phoneNumber },
     });
 
-    const hashedPassword = await hashPassword(password);
-    if (!user) {
-      await prismaInstance.users.create({
-        data: {
-          username,
-          phoneNumber,
-          password: hashedPassword,
-          gender,
-          withdrawPassword,
-        },
-      });
-      return res.status(StatusCode.Created).json({
-        message: "Account created successfully",
-        data: {
-          username,
-          phoneNumber,
-          gender,
-          status: "PENDING",
-        },
-        token: signJwt({
-          id: user?.id,
-          username,
-        }),
+    if (existingUser) {
+      return res.status(StatusCode.BadRequest).json({
+        message: "User already exists",
       });
     }
-    return res.status(StatusCode.BadRequest).json({
-      message: "User already exists",
+
+    const hashedPassword = await hashPassword(password);
+    const newUser = await prismaInstance.users.create({
+      data: {
+        username,
+        phoneNumber,
+        password: hashedPassword,
+        gender,
+        withdrawPassword,
+        status: "PENDING",
+      },
+    });
+
+    // Generate JWT token
+    const token = signJwt({
+      id: newUser.id,
+      username: newUser.username,
+    });
+
+    return res.status(StatusCode.Created).json({
+      message: "Account created successfully",
+      data: {
+        username: newUser.username,
+        phoneNumber: newUser.phoneNumber,
+        gender: newUser.gender,
+        status: newUser.status,
+      },
+      token,
     });
   } catch (err) {
     if (err instanceof yup.ValidationError) {
-      res.status(400).json({
+      res.status(StatusCode.BadRequest).json({
         message: "Validation failed",
         errors: err.errors,
       });
     } else {
-      console.log(err);
-      res.status(500).json({
+      console.error("Error in createAccountController:", err);
+      res.status(StatusCode.InternalServerError).json({
         message: "Internal server error",
       });
     }
@@ -72,19 +79,19 @@ const loginController = async (req: Request, res: Response) => {
     await loginSchema.validate(req.body);
     const { phoneNumber, password } = req.body;
 
-    const isUser = await prismaInstance.users.findFirst({
+    const user = await prismaInstance.users.findUnique({
       where: {
         phoneNumber,
       },
     });
-    //@ts-ignore
-    const isPasswordCorrect = await comparePasswords(password, isUser.password);
-    console.log(isPasswordCorrect);
-    if (!isUser) {
+
+    if (!user) {
       return res.status(StatusCode.NotFound).json({
         message: "User not found",
       });
     }
+
+    const isPasswordCorrect = await comparePasswords(password, user.password);
 
     if (!isPasswordCorrect) {
       return res.status(StatusCode.BadRequest).json({
@@ -92,29 +99,29 @@ const loginController = async (req: Request, res: Response) => {
       });
     }
 
+    const token = signJwt({
+      id: user.id,
+      username: user.username,
+    });
+
     return res.status(StatusCode.OK).json({
       message: "Logged in successfully",
       data: {
-        username: isUser.username,
-        email: isUser.email,
-        phoneNumber: isUser.phoneNumber,
+        username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
       },
-      token: {
-        token: signJwt({
-          id: isUser.id,
-          username: isUser.username,
-        }),
-      },
+      token,
     });
   } catch (err) {
     if (err instanceof yup.ValidationError) {
-      res.status(400).json({
+      res.status(StatusCode.BadRequest).json({
         message: "Validation failed",
         errors: err.errors,
       });
     } else {
-      console.log(err);
-      res.status(500).json({
+      console.error("Error in loginController:", err);
+      res.status(StatusCode.InternalServerError).json({
         message: "Internal server error",
       });
     }
