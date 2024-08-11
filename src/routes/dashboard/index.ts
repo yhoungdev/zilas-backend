@@ -17,7 +17,7 @@ import {
   adminUpdateProductController,
   adminFetchProductsController,
 } from "../../controllers/admin/products";
-import { upload } from "../../../config/multer";
+import { upload } from "../../../middleware/multer";
 
 const router = express.Router();
 
