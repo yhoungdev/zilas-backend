@@ -3,11 +3,11 @@ import * as yup from "yup";
 import {
   createAccountSchema,
   loginSchema,
-} from "../validations/auth.validation";
-import { prismaInstance } from "../utils/prisma";
+} from "../../validations/auth.validation";
+import { prismaInstance } from "../../utils/prisma";
 import { StatusCode } from "../enums/statusEnum";
-import { comparePasswords, hashPassword } from "../utils/hashPassword";
-import { signJwt } from "../utils/jwt";
+import { comparePasswords, hashPassword } from "../../utils/hashPassword";
+import { signJwt } from "../../utils/jwt";
 
 const createAccountController = async (req: Request, res: Response) => {
   try {

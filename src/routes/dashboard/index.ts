@@ -17,6 +17,7 @@ import {
   adminUpdateProductController,
   adminFetchProductsController,
 } from "../../controllers/admin/products";
+import { upload } from "../../../config/multer";
 
 const router = express.Router();
 
@@ -31,7 +32,11 @@ router.delete("/admin/users/:id", deleteUserController);
 //products endpoint
 //#region product
 router.get("/admin/products", adminFetchProductsController);
-router.post("/admin/product/add", adminAddProductController);
+router.post(
+  "/admin/product/add",
+  upload.single("image"),
+  adminAddProductController,
+);
 router.patch("/admin/product/update/:id", adminUpdateProductController);
 router.delete("/admin/product/delete/:id", adminDeleteProductController);
 

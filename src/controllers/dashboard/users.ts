@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { prismaInstance } from "../../utils/prisma";
+import { prismaInstance } from "../../../utils/prisma";
 import { StatusCode } from "../../enums/statusEnum";
 
 export const listAllUsersController = async (req: Request, res: Response) => {

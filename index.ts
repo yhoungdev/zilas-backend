@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 3000;
 import env from "dotenv";
 const app = express();
 app.use(express.json());
-import { prismaInstance } from "./src/utils/prisma";
+import { prismaInstance } from "./utils/prisma";
 
 env.config();
 

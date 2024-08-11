@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { prismaInstance } from "../../utils/prisma";
+import { prismaInstance } from "../../../utils/prisma";
 import type { IExtendJwtPayload } from "../../types";
 
 export const addExternalWalletController = async (

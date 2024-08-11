@@ -1,6 +1,6 @@
 import jsonwebtoken, { type JwtPayload } from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
-import { StatusCode } from "../enums/statusEnum";
+import { StatusCode } from "../src/enums/statusEnum";
 import { JWT_HASH } from "../constant";
 
 interface AuthenticatedRequest extends Request {

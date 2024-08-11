@@ -4,7 +4,7 @@ import {
   addExternalWalletController,
   getUserWallet,
 } from "../controllers/user/wallet";
-import { isAuthenticated } from "../utils/isAuthenticated";
+import { isAuthenticated } from "../../utils/isAuthenticated";
 
 const router = express.Router();
 

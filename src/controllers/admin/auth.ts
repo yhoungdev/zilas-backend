@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import * as yup from "yup";
-import { prismaInstance } from "../../utils/prisma";
+import { prismaInstance } from "../../../utils/prisma";
 import { StatusCode } from "../../enums/statusEnum";
-import { signJwt } from "../../utils/jwt";
-import { comparePasswords, hashPassword } from "../../utils/hashPassword";
+import { signJwt } from "../../../utils/jwt";
+import { comparePasswords, hashPassword } from "../../../utils/hashPassword";
 
 const createAdminSchema = yup.object({
   email: yup.string().email().required(),

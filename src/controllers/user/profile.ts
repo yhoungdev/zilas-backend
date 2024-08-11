@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { prismaInstance } from "../../utils/prisma";
+import { prismaInstance } from "../../../utils/prisma";
 
 export const getUserprofileController = async (req: Request, res: Response) => {
   const { id } = req.params;
