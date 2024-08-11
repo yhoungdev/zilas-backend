@@ -29,9 +29,9 @@ router.put("/admin/users/update", updateUserController);
 router.delete("/admin/users/:id", deleteUserController);
 
 //products endpoint
-router.post("/admin/products", adminFetchProductsController);
+router.get("/admin/products", adminFetchProductsController);
 router.post("/admin/product/add", adminAddProductController);
-router.post("/admin/product/update/:id", adminUpdateProductController);
-router.post("/admin/product/detele/:id", adminDeleteProductController);
+router.patch("/admin/product/update/:id", adminUpdateProductController);
+router.delete("/admin/product/delete/:id", adminDeleteProductController);
 
 export const adminRoutes = router;
