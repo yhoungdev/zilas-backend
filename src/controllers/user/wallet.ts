@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { prismaInstance } from "../../utils/prisma";
+import type { IExtendJwtPayload } from "../../types";
 
 export const addExternalWalletController = async (
   req: Request,
@@ -7,8 +8,7 @@ export const addExternalWalletController = async (
 ) => {
   try {
     const { address, network } = req.body;
-    //@ts-ignore
-    const { id } = req?.user;
+    const { id } = req?.user as IExtendJwtPayload;
 
     if (!address || !network) {
       return res.status(400).json({
@@ -17,6 +17,7 @@ export const addExternalWalletController = async (
     }
 
     const addWallet = await prismaInstance.externalWallet.create({
+      //@ts-ignore
       data: { id, address, network },
     });
 
@@ -41,7 +42,7 @@ export const addExternalWalletController = async (
 
 export const getUserWallet = async (req: Request, res: Response) => {
   try {
-    const { id } = req?.user;
+    const { id } = req?.user as IExtendJwtPayload;
 
     if (!id) {
       return res.status(401).json({
