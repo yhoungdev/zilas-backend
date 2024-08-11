@@ -25,10 +25,11 @@ router.post("/admin/create", createAdminController);
 router.get("/admin/users", listAllUsersController);
 router.get("/admin/users/:id", getUserController);
 router.patch("/admin/users/verify", verifyUserController);
-router.put("/admin/users/update", updateUserController);
+router.patch("/admin/users/update", updateUserController);
 router.delete("/admin/users/:id", deleteUserController);
 
 //products endpoint
+//#region product
 router.get("/admin/products", adminFetchProductsController);
 router.post("/admin/product/add", adminAddProductController);
 router.patch("/admin/product/update/:id", adminUpdateProductController);
