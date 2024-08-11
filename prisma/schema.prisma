@@ -17,19 +17,28 @@ enum Gender {
   Female
 }
 
+enum AccountRank {
+  VIP1
+  VIP2
+  VIP3
+  VIP4
+}
+
 model Users {
-  id               String     @id @default(auto()) @map("_id") @db.ObjectId
-  username         String     @unique
-  email            String?    @unique
-  phoneNumber      String     @unique
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  username         String          @unique
+  email            String?         @unique
+  phoneNumber      String          @unique
   withdrawPassword String
-  gender           Gender
-  status           UsersEnum? @default(PENDING)
   password         String
-  createdAt        DateTime?  @default(now())
-  updatedAt        DateTime?  @updatedAt
+  createdAt        DateTime?       @default(now())
+  updatedAt        DateTime?       @updatedAt
+  referalCode      String          @unique
+  userRank         AccountRank?    @default(VIP1)
   Wallet           Wallet?
-  referalCode      String     @unique
+  gender           Gender
+  status           UsersEnum?      @default(PENDING)
+  ExternalWallet   ExternalWallet?
 }
 
 model Wallet {
@@ -48,6 +57,8 @@ model ExternalWallet {
   address   String
   network   String
   createdAt DateTime @default(now())
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    String   @unique @db.ObjectId
 }
 
 datasource db {

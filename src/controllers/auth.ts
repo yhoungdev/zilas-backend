@@ -40,6 +40,7 @@ const createAccountController = async (req: Request, res: Response) => {
         password: hashedPassword,
         gender,
         withdrawPassword,
+        userRank: "VIP1",
         status: "PENDING",
         referalCode: referalCode,
       },
@@ -57,6 +58,7 @@ const createAccountController = async (req: Request, res: Response) => {
         username: newUser.username,
         phoneNumber: newUser.phoneNumber,
         gender: newUser.gender,
+        userRank: newUser.userRank,
         status: newUser.status,
       },
       token,
@@ -112,6 +114,7 @@ const loginController = async (req: Request, res: Response) => {
         username: user.username,
         email: user.email,
         phoneNumber: user.phoneNumber,
+        userRank: user.userRank,
       },
       token,
     });
