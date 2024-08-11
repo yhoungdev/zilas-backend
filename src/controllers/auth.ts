@@ -85,8 +85,6 @@ const createAccountController = async (req: Request, res: Response) => {
   }
 };
 
-
-
 const loginController = async (req: Request, res: Response) => {
   try {
     await loginSchema.validate(req.body);

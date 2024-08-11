@@ -19,4 +19,19 @@ const loginSchema = yup.object().shape({
   password: yup.string().required("Password is required"),
 });
 
-export { loginSchema, createAccountSchema };
+const createAdminSchema = yup.object({
+  email: yup.string().email().required(),
+  password: yup.string().min(6).required(),
+});
+
+const loginAdminSchema = yup.object({
+  email: yup.string().email().required(),
+  password: yup.string().min(6).required(),
+});
+
+export {
+  loginSchema,
+  createAccountSchema,
+  createAdminSchema,
+  loginAdminSchema,
+};

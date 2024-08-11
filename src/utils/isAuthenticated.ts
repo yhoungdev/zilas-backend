@@ -3,8 +3,6 @@ import type { Request, Response, NextFunction } from "express";
 import { StatusCode } from "../enums/statusEnum";
 import { JWT_HASH } from "../constant";
 
-
-
 interface AuthenticatedRequest extends Request {
   user?: string | JwtPayload;
 }

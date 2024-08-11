@@ -3,7 +3,8 @@ import { JWT_HASH } from "../constant";
 
 interface IData {
   id: string;
-  username: string;
+  username?: string;
+  email?: string;
 }
 
 export const signJwt = (data: IData) => {

@@ -38,4 +38,3 @@ export const getUserprofileController = async (req: Request, res: Response) => {
     });
   }
 };
-
