@@ -10,13 +10,17 @@ export const getUserprofileController = async (req: Request, res: Response) => {
         message: "User ID is required",
       });
     }
-    const user = await prismaInstance.users.findUnique({
-      where: { id },
-      omit: {
-        password: true,
-        withdrawPassword: true,
-      },
-    });
+   const user = await prismaInstance.users.findUnique({
+     where: { id },
+     select: {
+       id: true,
+       username: true,
+       phoneNumber: true,
+       gender: true,
+       status: true,
+       Wallet: true,
+     },
+   });
 
     if (!user) {
       return res.status(404).json({
