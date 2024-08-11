@@ -4,11 +4,7 @@ import { StatusCode } from "../../enums/statusEnum";
 
 export const listAllUsersController = async (req: Request, res: Response) => {
   try {
-    const users = await prismaInstance.users.findMany({
-      omit: {
-        password: true,
-      },
-    });
+    const users = await prismaInstance.users.findMany();
     res.status(StatusCode.OK).json({
       message: "Users fetched successfully",
       data: users,
