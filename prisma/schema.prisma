@@ -64,13 +64,12 @@ model ExternalWallet {
 }
 
 model Products {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  price       Float
-  quantity    Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  price     Float
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 //admin sectoin
