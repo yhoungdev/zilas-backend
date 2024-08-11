@@ -7,7 +7,10 @@ import {
   updateProductSchema,
 } from "../../validations/admin";
 
-export const fetchProductsController = async (req: Request, res: Response) => {
+export const adminFetchProductsController = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const products = await prismaInstance.products.findMany();
     return res.status(StatusCode.OK).json({
