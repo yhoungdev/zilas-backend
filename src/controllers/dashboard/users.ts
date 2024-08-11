@@ -16,7 +16,8 @@ export const listAllUsersController = async (req: Request, res: Response) => {
     });
   } catch (err) {
     res.status(StatusCode.InternalServerError).json({
-      message: "Internal server error",
+      message: err?.message,
+      error: "Internal Server Error",
     });
   }
 };
@@ -38,7 +39,8 @@ export const getUserController = async (req: Request, res: Response) => {
     });
   } catch (err) {
     res.status(StatusCode.InternalServerError).json({
-      message: "Internal server error",
+      message: err?.message,
+      error: "Internal Server Error",
     });
   }
 };
