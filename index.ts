@@ -5,6 +5,7 @@ const PORT = process.env.PORT || 3000;
 import env from "dotenv";
 const app = express();
 app.use(express.json());
+import { prismaInstance } from "./src/utils/prisma";
 
 env.config();
 
@@ -33,6 +34,12 @@ ROUTES_CONSTANT.forEach((routeConfig) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  try {
+    await prismaInstance.$connect();
+    console.log("Connected to database");
+  } catch (error) {
+    console.error("Failed to connect to the database:", error);
+  }
 });
