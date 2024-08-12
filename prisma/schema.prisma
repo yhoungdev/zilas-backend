@@ -1,0 +1,87 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+type UsersStatus {
+  status String
+}
+
+enum UsersEnum {
+  PENDING
+  VERIFIED
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+enum AccountRank {
+  VIP1
+  VIP2
+  VIP3
+  VIP4
+}
+
+model Users {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  username         String          @unique
+  email            String?         @unique
+  phoneNumber      String          @unique
+  withdrawPassword String
+  password         String
+  createdAt        DateTime?       @default(now())
+  updatedAt        DateTime?       @updatedAt
+  referalCode      String          @unique
+  resetCount       Int?            @default(0)
+  userRank         AccountRank?    @default(VIP1)
+  Wallet           Wallet?
+  gender           Gender
+  status           UsersEnum?      @default(PENDING)
+  ExternalWallet   ExternalWallet?
+}
+
+model Wallet {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  balance       Float    @default(0)
+  frozenBalance Float    @default(0)
+  todaysEarning Float    @default(0)
+  totalProfit   Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          Users    @relation(fields: [userId], references: [id])
+  userId        String   @unique @db.ObjectId
+}
+
+model ExternalWallet {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  address   String
+  network   String
+  createdAt DateTime @default(now())
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    String   @unique @db.ObjectId
+}
+
+model Products {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  price     String
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//admin sectoin
+model Admins {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
