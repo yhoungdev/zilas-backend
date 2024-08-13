@@ -8,6 +8,7 @@ import { isAuthenticated } from "../../utils/isAuthenticated";
 import {
   fetchAllProducts,
   fetchProductsByUserRank,
+  usersProductHistory,
   viewProduct,
 } from "../controllers/user/products";
 
@@ -24,5 +25,7 @@ router.get(
 );
 
 router.get("/user/products/view/:id", isAuthenticated, viewProduct);
+router.get("/user/products/history", isAuthenticated, usersProductHistory);
+
 
 export const defaultUsersRoute = router;

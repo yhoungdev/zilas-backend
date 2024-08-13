@@ -125,6 +125,15 @@ export const viewProduct = async (req: Request, res: Response) => {
       });
     }
 
+    await prismaInstance.usersHistory.create({
+      data: {
+        userId,
+        productId,
+        status: submit ? "completed" : "pending",
+        quantity: 1,
+      },
+    });
+
     return res.status(StatusCode.OK).json({
       message: submit
         ? "Product fetched successfully, wallet balance updated"
@@ -138,12 +147,49 @@ export const viewProduct = async (req: Request, res: Response) => {
   }
 };
 
+export const usersProductHistory = async (req: Request, res: Response) => {
+  const { id: userId } = req.user as IExtendJwtPayload;
 
-export const mintProduct = async (req: Request, res: Response) => {
   try {
+    const history = await prismaInstance.usersHistory.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const historyWithProducts = await Promise.all(
+      history.map(async (item) => {
+        const product = await prismaInstance.products.findUnique({
+          where: { id: item.productId },
+          select: {
+            name: true,
+            price: true,
+            image: true,
+          },
+        });
+
+        return {
+          id: item.id,
+          userId: item.userId,
+          status: item.status,
+          quantity: item.quantity,
+          createdAt: item.createdAt,
+          product: {
+            name: product?.name,
+            price: product?.price,
+            image: product?.image,
+          },
+        };
+      }),
+    );
+
+    return res.status(StatusCode.OK).json({
+      message: "Product history fetched successfully",
+      data: historyWithProducts,
+    });
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal server error",
     });
   }
 };
+

@@ -81,6 +81,15 @@ model Admins {
   updatedAt DateTime @updatedAt
 }
 
+model UsersHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  productId String   @unique @db.ObjectId
+  status    String
+  quantity  Int
+  createdAt DateTime @default(now())
+}
+
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
