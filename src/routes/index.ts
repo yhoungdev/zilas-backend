@@ -8,6 +8,7 @@ import { isAuthenticated } from "../../utils/isAuthenticated";
 import {
   fetchAllProducts,
   fetchProductsByUserRank,
+  viewProduct,
 } from "../controllers/user/products";
 
 const router = express.Router();
@@ -22,6 +23,6 @@ router.get(
   fetchProductsByUserRank,
 );
 
-router.get("/user/products/view", isAuthenticated, fetchProductsByUserRank);
+router.get("/user/products/view/:id", isAuthenticated, viewProduct);
 
 export const defaultUsersRoute = router;

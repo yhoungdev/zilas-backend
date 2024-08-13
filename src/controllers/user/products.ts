@@ -72,13 +72,62 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
 
 
 export const viewProduct = async (req: Request, res: Response) => {
+  const { id: productId } = req.params;
+  const { id: userId } = req.user as IExtendJwtPayload;
+
   try {
+    const user = await prismaInstance.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(StatusCode.Unauthorized).json({
+        message: "User not found",
+      });
+    }
+
+    const product = await prismaInstance.products.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.status(StatusCode.NotFound).json({
+        message: "Product not found",
+      });
+    }
+
+    const getPrice = parseFloat(product.price);
+
+    const wallet = await prismaInstance.wallet.findUnique({
+      where: { userId },
+    });
+
+    if (!wallet) {
+      return res.status(StatusCode.NotFound).json({
+        message: "Wallet not found",
+      });
+    }
+
+    const updatedFrozenBalance = wallet.frozenBalance + getPrice;
+
+    await prismaInstance.wallet.update({
+      where: { userId },
+      data: {
+        frozenBalance: updatedFrozenBalance,
+      },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: "Product fetched successfully, balance updated",
+      data: product,
+    });
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal server error",
     });
   }
 };
+
 
 export const mintProduct = async (req: Request, res: Response) => {
   try {
