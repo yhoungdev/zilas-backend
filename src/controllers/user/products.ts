@@ -74,6 +74,7 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
 export const viewProduct = async (req: Request, res: Response) => {
   const { id: productId } = req.params;
   const { id: userId } = req.user as IExtendJwtPayload;
+  const { submit } = req.body as { submit: boolean };
 
   try {
     const user = await prismaInstance.users.findUnique({
@@ -108,17 +109,26 @@ export const viewProduct = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedFrozenBalance = wallet.frozenBalance + getPrice;
-
-    await prismaInstance.wallet.update({
-      where: { userId },
-      data: {
-        frozenBalance: updatedFrozenBalance,
-      },
-    });
+    if (submit) {
+      await prismaInstance.wallet.update({
+        where: { userId },
+        data: {
+          todaysEarning: wallet.todaysEarning + getPrice,
+        },
+      });
+    } else {
+      await prismaInstance.wallet.update({
+        where: { userId },
+        data: {
+          frozenBalance: wallet.frozenBalance + getPrice,
+        },
+      });
+    }
 
     return res.status(StatusCode.OK).json({
-      message: "Product fetched successfully, balance updated",
+      message: submit
+        ? "Product fetched successfully, wallet balance updated"
+        : "Product fetched successfully, frozen balance updated",
       data: product,
     });
   } catch (err) {
