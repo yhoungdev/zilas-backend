@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
 import { prismaInstance } from "../../../utils/prisma";
+import { IExtendJwtPayload } from "../../types";
 
 export const getUserprofileController = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.user as IExtendJwtPayload;
 
   try {
     if (!id) {
