@@ -19,16 +19,28 @@ const createAccountController = async (req: Request, res: Response) => {
       password,
       gender,
       invitationCode,
+      email,
     } = req.body;
 
     const referalCode = `ZIL${username.toUpperCase()}`;
+
     const existingUser = await prismaInstance.users.findUnique({
       where: { phoneNumber },
     });
 
     if (existingUser) {
       return res.status(StatusCode.BadRequest).json({
-        message: "User already exists",
+        message: "User with this phone number already exists",
+      });
+    }
+
+    const existingEmail = await prismaInstance.users.findUnique({
+      where: { email },
+    });
+
+    if (existingEmail) {
+      return res.status(StatusCode.BadRequest).json({
+        message: "User with this email already exists",
       });
     }
 
@@ -38,6 +50,7 @@ const createAccountController = async (req: Request, res: Response) => {
       data: {
         username,
         phoneNumber,
+        email,
         password: hashedPassword,
         gender,
         withdrawPassword,
@@ -63,6 +76,7 @@ const createAccountController = async (req: Request, res: Response) => {
       data: {
         username: newUser.username,
         phoneNumber: newUser.phoneNumber,
+        email: newUser.email,
         gender: newUser.gender,
         userRank: newUser.userRank,
         status: newUser.status,
@@ -76,6 +90,12 @@ const createAccountController = async (req: Request, res: Response) => {
         message: "Validation failed",
         errors: err.errors,
       });
+      //@ts-ignore
+    } else if (err?.code === "P2002") {
+      res.status(StatusCode.Conflict).json({
+        //@ts-ignore
+        message: `A user with this ${err?.meta?.target} already exists.`,
+      });
     } else {
       console.error("Error in createAccountController:", err);
       res.status(StatusCode.InternalServerError).json({
@@ -84,6 +104,7 @@ const createAccountController = async (req: Request, res: Response) => {
     }
   }
 };
+
 
 const loginController = async (req: Request, res: Response) => {
   try {
