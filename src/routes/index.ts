@@ -22,5 +22,6 @@ router.get(
   fetchProductsByUserRank,
 );
 
+router.get("/user/products/view", isAuthenticated, fetchProductsByUserRank);
 
 export const defaultUsersRoute = router;

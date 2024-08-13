@@ -69,3 +69,22 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const viewProduct = async (req: Request, res: Response) => {
+  try {
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const mintProduct = async (req: Request, res: Response) => {
+  try {
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+    });
+  }
+};
