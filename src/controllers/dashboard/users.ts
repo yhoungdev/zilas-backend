@@ -269,6 +269,11 @@ export const banUserController = async (req: Request, res: Response) => {
       },
     });
 
+    if (!updatedUser) {
+      return res.status(StatusCode.NotFound).json({
+        message: "Failed to update user's status",
+      });
+    }
     return res.status(StatusCode.OK).json({
       message: `User has been ${ban ? "banned" : "unbanned"} successfully`,
       data: {
