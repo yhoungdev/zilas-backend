@@ -222,3 +222,65 @@ export const updateUserRankController = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const banUserController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { ban } = req.body as { ban: boolean };
+
+    if (!id) {
+      return res.status(StatusCode.NotFound).json({
+        message: "User ID is required",
+      });
+    }
+
+    if (typeof ban !== "boolean") {
+      return res.status(StatusCode.BadRequest).json({
+        message: "The 'ban' field must be a boolean",
+      });
+    }
+
+    const checkUser = await prismaInstance.users.findUnique({
+      where: { id },
+    });
+
+    if (!checkUser) {
+      return res.status(StatusCode.NotFound).json({
+        message: "User not found",
+      });
+    }
+
+    if (ban && checkUser.status === "BANNED") {
+      return res.status(StatusCode.BadRequest).json({
+        message: "User is already banned",
+      });
+    }
+
+    if (!ban && checkUser.status !== "BANNED") {
+      return res.status(StatusCode.BadRequest).json({
+        message: "User is not banned, so cannot unban",
+      });
+    }
+
+    const updatedUser = await prismaInstance.users.update({
+      where: { id },
+      data: {
+        status: ban ? "BANNED" : "VERIFIED",
+      },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: `User has been ${ban ? "banned" : "unbanned"} successfully`,
+      data: {
+        username: checkUser.username,
+        phoneNumber: checkUser.phoneNumber,
+        status: checkUser.status,
+      },
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
+};

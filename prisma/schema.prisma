@@ -10,6 +10,7 @@ type UsersStatus {
 enum UsersEnum {
   PENDING
   VERIFIED
+  BANNED
 }
 
 enum Gender {

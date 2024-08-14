@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  banUserController,
   deleteUserController,
   getUserController,
   listAllUsersController,
@@ -29,7 +30,9 @@ router.get("/admin/users/:id", getUserController);
 router.patch("/admin/users/verify", verifyUserController);
 router.patch("/admin/users/update/:id", updateUserController);
 router.patch("/admin/users/update-rank/:id", updateUserRankController);
+router.patch("/admin/users/ban/:id", banUserController);
 router.delete("/admin/users/:id", deleteUserController);
+
 
 //products endpoint
 //#region product
