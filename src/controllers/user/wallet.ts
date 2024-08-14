@@ -2,7 +2,10 @@ import type { Request, Response } from "express";
 import { prismaInstance } from "../../../utils/prisma";
 import type { IExtendJwtPayload } from "../../types";
 
-export const addExternalWalletController = async (req: Request, res: Response) => {
+export const addExternalWalletController = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const { address, network } = req.body;
     const { id } = req?.user as IExtendJwtPayload;
@@ -12,11 +15,9 @@ export const addExternalWalletController = async (req: Request, res: Response) =
         message: "Address and network are required",
       });
     }
-
-    const existingWallet = await prismaInstance.externalWallet.findFirst({
+    const existingWallet = await prismaInstance.externalWallet.findUnique({
       where: {
-        id,
-        network,
+        userId: id,
       },
     });
 

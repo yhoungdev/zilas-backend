@@ -20,6 +20,7 @@ export const getUserprofileController = async (req: Request, res: Response) => {
         gender: true,
         status: true,
         userRank: true,
+        resetCount: true,
         referalCode: true,
         createdAt: true,
         Wallet: true,
