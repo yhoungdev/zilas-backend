@@ -1,17 +1,17 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
-import { ROUTES_CONSTANT } from "./constant/routeConstant";
-const PORT = process.env.PORT || 4000;
 import env from "dotenv";
-const app = express();
-app.use(express.json());
+import { ROUTES_CONSTANT } from "./constant/routeConstant";
 import { prismaInstance } from "./utils/prisma";
+
+const PORT = process.env.PORT || 4000;
 
 env.config();
 
+const app = express();
+
 const corsConfig = {
   origin: "*",
-  credentials: true,
   methods: "GET, POST, PUT, DELETE",
   allowedHeaders: [
     "Origin",
@@ -22,6 +22,11 @@ const corsConfig = {
 };
 
 app.use(cors(corsConfig));
+
+app.options("*", cors(corsConfig));
+
+app.use(express.json());
+
 
 app.get("/api/v1", (req: Request, res: Response) => {
   res.status(200).json({ message: "server for zilas project" });
