@@ -4,6 +4,7 @@ import {
   getUserController,
   listAllUsersController,
   updateUserController,
+  updateUserRankController,
   verifyUserController,
 } from "../../controllers/dashboard/users";
 
@@ -26,7 +27,8 @@ router.post("/admin/create", createAdminController);
 router.get("/admin/users", listAllUsersController);
 router.get("/admin/users/:id", getUserController);
 router.patch("/admin/users/verify", verifyUserController);
-router.patch("/admin/users/update", updateUserController);
+router.patch("/admin/users/update/:id", updateUserController);
+router.patch("/admin/users/update-rank/:id", updateUserRankController);
 router.delete("/admin/users/:id", deleteUserController);
 
 //products endpoint
