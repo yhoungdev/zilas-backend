@@ -2,10 +2,7 @@ import type { Request, Response } from "express";
 import { prismaInstance } from "../../../utils/prisma";
 import type { IExtendJwtPayload } from "../../types";
 
-export const addExternalWalletController = async (
-  req: Request,
-  res: Response,
-) => {
+export const addExternalWalletController = async (req: Request, res: Response) => {
   try {
     const { address, network } = req.body;
     const { id } = req?.user as IExtendJwtPayload;
@@ -16,19 +13,34 @@ export const addExternalWalletController = async (
       });
     }
 
-    const addWallet = await prismaInstance.externalWallet.create({
-      //@ts-ignore
-      data: { id, address, network },
+    const existingWallet = await prismaInstance.externalWallet.findFirst({
+      where: {
+        id,
+        network,
+      },
     });
 
-    if (!addWallet) {
-      return res.status(500).json({
-        message: "Internal server error",
+    if (existingWallet) {
+      return res.status(400).json({
+        message:
+          "You have already linked a wallet to this network. Please contact support if you need assistance.",
       });
     }
 
+    const addWallet = await prismaInstance.externalWallet.create({
+      data: {
+        address,
+        network,
+        user: {
+          connect: {
+            id,
+          },
+        },
+      },
+    });
+
     return res.status(201).json({
-      message: " Wallet  details sent successfully",
+      message: "Wallet details sent successfully",
       wallet: addWallet,
     });
   } catch (err) {
@@ -39,6 +51,7 @@ export const addExternalWalletController = async (
     });
   }
 };
+
 
 export const getUserWallet = async (req: Request, res: Response) => {
   try {
