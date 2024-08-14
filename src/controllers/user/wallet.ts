@@ -80,6 +80,7 @@ export const getUserWallet = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "User wallet details",
       wallet: userWallet.Wallet,
+      resetCount: userWallet.resetCount,
     });
   } catch (error) {
     return res.status(500).json({
