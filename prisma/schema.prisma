@@ -73,6 +73,16 @@ model Products {
   updatedAt DateTime @updatedAt
 }
 
+model MintOfTheDay {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @unique @db.ObjectId
+  userId    String
+  price     String?
+  profit    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 //admin sectoin
 model Admins {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId

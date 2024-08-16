@@ -115,6 +115,22 @@ export const viewProduct = async (req: Request, res: Response) => {
           todaysEarning: wallet.todaysEarning + getPrice,
         },
       });
+
+      const addToMint = await prismaInstance.mintOfTheDay.create({
+        data: {
+          userId,
+          productId,
+        },
+      });
+
+      if (!addToMint) {
+        return res.status(StatusCode.Created).json({
+          message: "Product added to mint of the day",
+          data: addToMint,
+        });
+      }
+
+      console.log("Product added to mint of the day");
     } else {
       await prismaInstance.wallet.update({
         where: { userId },
@@ -192,7 +208,10 @@ export const usersProductHistory = async (req: Request, res: Response) => {
   }
 };
 
-export const submitPendingHistroyController = async (req: Request, res: Response) => {
+export const submitPendingHistroyController = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const { recordId } = req.params;
 
