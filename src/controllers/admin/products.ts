@@ -7,8 +7,6 @@ import {
   updateProductSchema,
 } from "../../../validations/admin";
 
-
-
 export const adminAddProductController = async (
   req: Request,
   res: Response,

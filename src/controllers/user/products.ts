@@ -192,37 +192,36 @@ export const usersProductHistory = async (req: Request, res: Response) => {
   }
 };
 
-export const submitPendingHistroyController = async (
-  req: Request,
-  res: Response,
-) => {
-  const { recordId } = req.params;
-  const { id: userId } = req.user as IExtendJwtPayload;
-
-  if (!recordId) {
-    return res
-      .status(StatusCode.BadRequest)
-      .json({ message: "Record  ID is required" });
-  }
-
-  const checkProduct = await prismaInstance.usersHistory.findUnique({
-    where: { id: recordId },
-  });
-
-  if (!checkProduct) {
-    return res
-      .status(StatusCode.NotFound)
-      .json({ message: "Product not found" });
-  }
-
-  const updateProduct = await prismaInstance.usersHistory.update({
-    where: { id: recordId },
-    data: {
-      status: "completed",
-    },
-  });
-
+export const submitPendingHistroyController = async (req: Request, res: Response) => {
   try {
+    const { recordId } = req.params;
+
+    if (!recordId) {
+      return res
+        .status(StatusCode.BadRequest)
+        .json({ message: "Record  ID is required" });
+    }
+
+    const checkProduct = await prismaInstance.usersHistory.findUnique({
+      where: { id: recordId },
+    });
+
+    if (!checkProduct) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "Product not found" });
+    }
+
+    const updateProduct = await prismaInstance.usersHistory.update({
+      where: { id: recordId },
+      data: {
+        status: "completed",
+      },
+    });
+
+    return res
+      .status(StatusCode.OK)
+      .json({ message: "Product updated successfully", data: updateProduct });
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal Server",
@@ -231,4 +230,3 @@ export const submitPendingHistroyController = async (
     });
   }
 };
-

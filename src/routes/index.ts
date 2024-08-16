@@ -27,11 +27,10 @@ router.get(
 
 router.post("/user/products/view/:id", isAuthenticated, viewProduct);
 router.get("/user/products/history", isAuthenticated, usersProductHistory);
-router.get(
-  "/user/products/history/update",
+router.post(
+  "/user/products/history/update/:recordId",
   isAuthenticated,
   submitPendingHistroyController,
 );
-
 
 export const defaultUsersRoute = router;
