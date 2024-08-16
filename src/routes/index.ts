@@ -8,6 +8,7 @@ import { isAuthenticated } from "../../utils/isAuthenticated";
 import {
   fetchAllProducts,
   fetchProductsByUserRank,
+  submitPendingHistroyController,
   usersProductHistory,
   viewProduct,
 } from "../controllers/user/products";
@@ -26,6 +27,11 @@ router.get(
 
 router.post("/user/products/view/:id", isAuthenticated, viewProduct);
 router.get("/user/products/history", isAuthenticated, usersProductHistory);
+router.get(
+  "/user/products/history/update",
+  isAuthenticated,
+  submitPendingHistroyController,
+);
 
 
 export const defaultUsersRoute = router;

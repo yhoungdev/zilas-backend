@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  adminFundUsersWallet,
   banUserController,
   deleteUserController,
   getUserController,
@@ -25,6 +26,7 @@ const router = express.Router();
 
 router.post("/admin/login", loginAdminController);
 router.post("/admin/create", createAdminController);
+router.post("/admin/users/fund-wallet/:id", adminFundUsersWallet);
 router.get("/admin/users", listAllUsersController);
 router.get("/admin/users/:id", getUserController);
 router.patch("/admin/users/verify", verifyUserController);
@@ -33,15 +35,16 @@ router.patch("/admin/users/update-rank/:id", updateUserRankController);
 router.patch("/admin/users/ban/:id", banUserController);
 router.delete("/admin/users/:id", deleteUserController);
 
-
 //products endpoint
 //#region product
+
 router.get("/admin/products", adminFetchProductsController);
 router.post(
   "/admin/product/add",
   upload.single("image"),
   adminAddProductController,
 );
+
 router.patch("/admin/product/update/:id", adminUpdateProductController);
 router.delete("/admin/product/delete/:id", adminDeleteProductController);
 

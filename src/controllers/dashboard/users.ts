@@ -289,3 +289,55 @@ export const banUserController = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const updateUserWalletController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    const { amount } = req.body;
+
+    if (!id) {
+      return res.status(StatusCode.BadRequest).json({
+        message: "User ID is required",
+      });
+    }
+
+    if (amount === undefined || amount === null) {
+      return res.status(StatusCode.BadRequest).json({
+        message: "Amount is required",
+      });
+    }
+
+    const checkUser = await prismaInstance.users.findUnique({
+      where: { id },
+      include: { Wallet: true },
+    });
+
+    if (!checkUser || !checkUser.Wallet) {
+      return res.status(StatusCode.NotFound).json({
+        message: checkUser ? "User's wallet not found" : "User not found",
+      });
+    }
+
+    const updatedBalance = checkUser.Wallet.balance + amount;
+
+    const updatedWallet = await prismaInstance.wallet.update({
+      where: { id: checkUser.Wallet.id },
+      data: {
+        balance: updatedBalance,
+      },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: "User wallet updated successfully",
+      data: updatedWallet,
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
+};

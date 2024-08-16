@@ -70,7 +70,6 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
   }
 };
 
-
 export const viewProduct = async (req: Request, res: Response) => {
   const { id: productId } = req.params;
   const { id: userId } = req.user as IExtendJwtPayload;
@@ -189,6 +188,46 @@ export const usersProductHistory = async (req: Request, res: Response) => {
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal server error",
+    });
+  }
+};
+
+export const submitPendingHistroyController = async (
+  req: Request,
+  res: Response,
+) => {
+  const { recordId } = req.params;
+  const { id: userId } = req.user as IExtendJwtPayload;
+
+  if (!recordId) {
+    return res
+      .status(StatusCode.BadRequest)
+      .json({ message: "Record  ID is required" });
+  }
+
+  const checkProduct = await prismaInstance.usersHistory.findUnique({
+    where: { id: recordId },
+  });
+
+  if (!checkProduct) {
+    return res
+      .status(StatusCode.NotFound)
+      .json({ message: "Product not found" });
+  }
+
+  const updateProduct = await prismaInstance.usersHistory.update({
+    where: { id: recordId },
+    data: {
+      status: "completed",
+    },
+  });
+
+  try {
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal Server",
+      //@ts-ignore
+      error: err?.message,
     });
   }
 };
