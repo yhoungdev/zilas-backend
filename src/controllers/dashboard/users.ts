@@ -290,10 +290,7 @@ export const banUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUserWalletController = async (
-  req: Request,
-  res: Response,
-) => {
+export const adminFundUsersWallet = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { amount } = req.body;
