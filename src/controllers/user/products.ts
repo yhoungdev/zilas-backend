@@ -106,7 +106,8 @@ export const viewProduct = async (req: Request, res: Response) => {
         message: "Product not found",
       });
     }
-    const profile = calculateProfit({
+
+    const profit = calculateProfit({
       rank: user.userRank,
       price: +product.price,
     });
@@ -129,18 +130,31 @@ export const viewProduct = async (req: Request, res: Response) => {
       },
     });
 
-    if (userHistory && userHistory.hasFrozenBalanceUpdated) {
-      return res.status(StatusCode.OK).json({
-        message: "Product has already been viewed, balance not updated",
-        data: product,
-      });
-    }
-
     if (submit) {
+      if (userHistory && userHistory.status === "") {
+        return res.status(StatusCode.OK).json({
+          message: "Product has already been submitted, balance not updated",
+          data: product,
+        });
+      }
+
       await prismaInstance.wallet.update({
         where: { userId },
         data: {
           todaysEarning: wallet.todaysEarning + getPrice,
+          totalProfit: wallet.totalProfit + profit,
+        },
+      });
+
+      await prismaInstance.usersHistory.upsert({
+        where: { id: userHistory?.id },
+        update: { status: "completed" },
+        create: {
+          userId,
+          productId,
+          status: "completed",
+          quantity: 1,
+          hasFrozenBalanceUpdated: false,
         },
       });
 
@@ -151,6 +165,13 @@ export const viewProduct = async (req: Request, res: Response) => {
         },
       });
     } else {
+      if (userHistory && userHistory.hasFrozenBalanceUpdated) {
+        return res.status(StatusCode.OK).json({
+          message: "Product has already been viewed, balance not updated",
+          data: product,
+        });
+      }
+
       await prismaInstance.wallet.update({
         where: { userId },
         data: {
