@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import { prismaInstance } from "../../../utils/prisma";
 import { StatusCode } from "../../enums/statusEnum";
 import { IExtendJwtPayload } from "../../types";
-import { RANKS, ENUM_RANKS } from "../../enums";
 
 export const fetchAllProducts = async (req: Request, res: Response) => {
   try {
@@ -57,9 +56,20 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
       take: productCount,
     });
 
+    const minted = await prismaInstance.mintOfTheDay.findMany({});
+    const mapMinted = minted?.map((data) => {
+      return data?.productId;
+    });
+
+    const filteredProducts = products.filter(
+      (product) => !mapMinted?.includes(product.id),
+    );
+
     return res.status(StatusCode.OK).json({
       message: `Products count for ${user.userRank}`,
-      data: products,
+      data: filteredProducts,
+      detail: "Filtered products based on counts ",
+      count: filteredProducts.length,
     });
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
