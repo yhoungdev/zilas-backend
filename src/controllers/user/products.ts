@@ -118,6 +118,20 @@ export const viewProduct = async (req: Request, res: Response) => {
       });
     }
 
+    const userHistory = await prismaInstance.usersHistory.findFirst({
+      where: {
+        userId,
+        productId,
+      },
+    });
+
+    if (userHistory && userHistory.hasFrozenBalanceUpdated) {
+      return res.status(StatusCode.OK).json({
+        message: "Product has already been viewed, balance not updated",
+        data: product,
+      });
+    }
+
     if (submit) {
       await prismaInstance.wallet.update({
         where: { userId },
@@ -126,21 +140,12 @@ export const viewProduct = async (req: Request, res: Response) => {
         },
       });
 
-      const addToMint = await prismaInstance.mintOfTheDay.create({
+      await prismaInstance.mintOfTheDay.create({
         data: {
           userId,
           productId,
         },
       });
-
-      if (!addToMint) {
-        return res.status(StatusCode.Created).json({
-          message: "Product added to mint of the day",
-          data: addToMint,
-        });
-      }
-
-      console.log("Product added to mint of the day");
     } else {
       await prismaInstance.wallet.update({
         where: { userId },
@@ -148,16 +153,24 @@ export const viewProduct = async (req: Request, res: Response) => {
           frozenBalance: wallet.frozenBalance + getPrice,
         },
       });
-    }
 
-    await prismaInstance.usersHistory.create({
-      data: {
-        userId,
-        productId,
-        status: submit ? "completed" : "pending",
-        quantity: 1,
-      },
-    });
+      if (userHistory) {
+        await prismaInstance.usersHistory.update({
+          where: { id: userHistory.id },
+          data: { hasFrozenBalanceUpdated: true },
+        });
+      } else {
+        await prismaInstance.usersHistory.create({
+          data: {
+            userId,
+            productId,
+            status: "pending",
+            quantity: 1,
+            hasFrozenBalanceUpdated: true,
+          },
+        });
+      }
+    }
 
     return res.status(StatusCode.OK).json({
       message: submit
@@ -171,6 +184,7 @@ export const viewProduct = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 export const usersProductHistory = async (req: Request, res: Response) => {
   const { id: userId } = req.user as IExtendJwtPayload;
