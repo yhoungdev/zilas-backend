@@ -1,5 +1,6 @@
 import jsonwebtoken from "jsonwebtoken";
 import { JWT_HASH } from "../constant";
+
 interface IData {
   id: string;
   username?: string;
@@ -12,11 +13,13 @@ export const signJwt = (data: IData) => {
   return token;
 };
 
-export const decodeJwt = () => {
-  //   try {
-  //     const decoded = jsonwebtoken.verify(token, JWT_HASH);
-  //     return decoded as IData;
-  //   } catch (err) {
-  //     return null;
-  //   }
+export const decodeJwt = (token: string): IData | null => {
+  try {
+    //@ts-ignore
+    const decoded = jsonwebtoken.verify(token, JWT_HASH) as unknown as IData;
+    return decoded;
+  } catch (err) {
+    console.error("JWT verification failed:", err);
+    return null;
+  }
 };

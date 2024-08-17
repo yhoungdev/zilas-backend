@@ -7,7 +7,7 @@ import {
 import { prismaInstance } from "../../utils/prisma";
 import { StatusCode } from "../enums/statusEnum";
 import { comparePasswords, hashPassword } from "../../utils/hashPassword";
-import { signJwt } from "../../utils/jwt";
+import { decodeJwt, signJwt } from "../../utils/jwt";
 
 const createAccountController = async (req: Request, res: Response) => {
   try {
@@ -149,5 +149,58 @@ const loginController = async (req: Request, res: Response) => {
   }
 };
 
+interface JwtPayload {
+  id: string;
+  username: string;
+  iat?: number;
+  exp?: number;
+}
 
-export { createAccountController, loginController };
+const loginWithJwtController = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(StatusCode.BadRequest).json({
+        message: "Token is required",
+      });
+    }
+
+    const decoded = decodeJwt(token);
+
+    if (!decoded) {
+      return res.status(StatusCode.Unauthorized).json({
+        message: "Invalid or expired token",
+      });
+    }
+
+    const user = await prismaInstance.users.findUnique({
+      where: {
+        id: decoded.id,
+      },
+    });
+
+    if (!user || user.jwt !== token) {
+      return res.status(StatusCode.Unauthorized).json({
+        message: "Authentication failed",
+      });
+    }
+
+    return res.status(StatusCode.OK).json({
+      message: "Logged in successfully",
+      data: {
+        username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        userRank: user.userRank,
+      },
+    });
+  } catch (err) {
+    console.error("Error in loginWithJwtController:", err);
+    res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export { createAccountController, loginController, loginWithJwtController };
