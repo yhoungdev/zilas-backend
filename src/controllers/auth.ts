@@ -115,6 +115,15 @@ const loginController = async (req: Request, res: Response) => {
       username: user.username,
     });
 
+    await prismaInstance.users.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        jwt: token,
+      },
+    });
+
     return res.status(StatusCode.OK).json({
       message: "Logged in successfully",
       data: {
@@ -139,5 +148,6 @@ const loginController = async (req: Request, res: Response) => {
     }
   }
 };
+
 
 export { createAccountController, loginController };

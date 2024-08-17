@@ -5,7 +5,11 @@ import { RANK_CONSTANT } from "../../../constant";
 
 export const listAllUsersController = async (req: Request, res: Response) => {
   try {
-    const users = await prismaInstance.users.findMany();
+    const users = await prismaInstance.users.findMany({
+      include: {
+        Wallet: true,
+      },
+    });
     res.status(StatusCode.OK).json({
       message: "Users fetched successfully",
       data: users,

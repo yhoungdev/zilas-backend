@@ -36,6 +36,7 @@ model Users {
   updatedAt        DateTime?       @updatedAt
   referalCode      String          @unique
   resetCount       Int?            @default(0)
+  jwt              String?
   userRank         AccountRank?    @default(VIP1)
   Wallet           Wallet?
   gender           Gender
