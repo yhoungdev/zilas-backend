@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 import { prismaInstance } from "../../../utils/prisma";
 import { IExtendJwtPayload } from "../../types";
+import { calculateProfit } from "../../helper/calculateProfit";
 
 export const getUserprofileController = async (req: Request, res: Response) => {
   const { id } = req.user as IExtendJwtPayload;
-
   try {
     if (!id) {
       return res.status(400).json({

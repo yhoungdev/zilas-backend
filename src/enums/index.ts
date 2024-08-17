@@ -6,8 +6,8 @@ export enum RANKS {
 }
 
 export enum ENUM_RANKS {
-  VIP1,
-  VIP2,
-  VIP3,
-  VIP4,
+  VIP1 = "VIP1",
+  VIP2 = "VIP2",
+  VIP3 = "VIP3",
+  VIP4 = "VIP4",
 }

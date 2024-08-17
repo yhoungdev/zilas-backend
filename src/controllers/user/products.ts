@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prismaInstance } from "../../../utils/prisma";
 import { StatusCode } from "../../enums/statusEnum";
 import { IExtendJwtPayload } from "../../types";
+import { calculateProfit } from "../../helper/calculateProfit";
 
 export const fetchAllProducts = async (req: Request, res: Response) => {
   try {
@@ -105,7 +106,10 @@ export const viewProduct = async (req: Request, res: Response) => {
         message: "Product not found",
       });
     }
-
+    const profile = calculateProfit({
+      rank: user.userRank,
+      price: +product.price,
+    });
     const getPrice = parseFloat(product.price);
 
     const wallet = await prismaInstance.wallet.findUnique({
