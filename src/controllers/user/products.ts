@@ -21,10 +21,6 @@ export const fetchAllProducts = async (req: Request, res: Response) => {
   }
 };
 
-type IRank = {
-  rank: "VIP1";
-};
-
 export const fetchProductsByUserRank = async (req: Request, res: Response) => {
   const { id } = req.user as IExtendJwtPayload;
 
@@ -80,136 +76,6 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
     });
   }
 };
-
-export const viewProduct = async (req: Request, res: Response) => {
-  const { id: productId } = req.params;
-  const { id: userId } = req.user as IExtendJwtPayload;
-  const { submit } = req.body as { submit: boolean };
-
-  try {
-    const user = await prismaInstance.users.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      return res.status(StatusCode.Unauthorized).json({
-        message: "User not found",
-      });
-    }
-
-    const product = await prismaInstance.products.findUnique({
-      where: { id: productId },
-    });
-
-    if (!product) {
-      return res.status(StatusCode.NotFound).json({
-        message: "Product not found",
-      });
-    }
-
-    const profit = calculateProfit({
-      rank: user.userRank,
-      price: +product.price,
-    });
-    const getPrice = parseFloat(product.price);
-
-    const wallet = await prismaInstance.wallet.findUnique({
-      where: { userId },
-    });
-
-    if (!wallet) {
-      return res.status(StatusCode.NotFound).json({
-        message: "Wallet not found",
-      });
-    }
-
-    const userHistory = await prismaInstance.usersHistory.findFirst({
-      where: {
-        userId,
-        productId,
-      },
-    });
-
-    if (submit) {
-      if (userHistory && userHistory.status === "") {
-        return res.status(StatusCode.OK).json({
-          message: "Product has already been submitted, balance not updated",
-          data: product,
-        });
-      }
-
-      await prismaInstance.wallet.update({
-        where: { userId },
-        data: {
-          todaysEarning: wallet.todaysEarning + getPrice,
-          totalProfit: wallet.totalProfit + profit,
-        },
-      });
-
-      await prismaInstance.usersHistory.upsert({
-        where: { id: userHistory?.id },
-        update: { status: "completed" },
-        create: {
-          userId,
-          productId,
-          status: "completed",
-          quantity: 1,
-          hasFrozenBalanceUpdated: false,
-        },
-      });
-
-      await prismaInstance.mintOfTheDay.create({
-        data: {
-          userId,
-          productId,
-        },
-      });
-    } else {
-      if (userHistory && userHistory.hasFrozenBalanceUpdated) {
-        return res.status(StatusCode.OK).json({
-          message: "Product has already been viewed, balance not updated",
-          data: product,
-        });
-      }
-
-      await prismaInstance.wallet.update({
-        where: { userId },
-        data: {
-          frozenBalance: wallet.frozenBalance + getPrice,
-        },
-      });
-
-      if (userHistory) {
-        await prismaInstance.usersHistory.update({
-          where: { id: userHistory.id },
-          data: { hasFrozenBalanceUpdated: true },
-        });
-      } else {
-        await prismaInstance.usersHistory.create({
-          data: {
-            userId,
-            productId,
-            status: "pending",
-            quantity: 1,
-            hasFrozenBalanceUpdated: true,
-          },
-        });
-      }
-    }
-
-    return res.status(StatusCode.OK).json({
-      message: submit
-        ? "Product fetched successfully, wallet balance updated"
-        : "Product fetched successfully, frozen balance updated",
-      data: product,
-    });
-  } catch (err) {
-    return res.status(StatusCode.InternalServerError).json({
-      message: "Internal server error",
-    });
-  }
-};
-
 
 export const usersProductHistory = async (req: Request, res: Response) => {
   const { id: userId } = req.user as IExtendJwtPayload;
@@ -293,6 +159,142 @@ export const submitPendingHistroyController = async (
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal Server",
+      //@ts-ignore
+      error: err?.message,
+    });
+  }
+};
+
+export const viewProduct = async (req: Request, res: Response) => {
+  const { id: productId } = req.params;
+  const { id: userId } = req.user as IExtendJwtPayload;
+  const { submit } = req.body as { submit: boolean };
+
+  try {
+    const user = await prismaInstance.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(StatusCode.Unauthorized).json({
+        message: "User not found",
+      });
+    }
+
+    const product = await prismaInstance.products.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.status(StatusCode.NotFound).json({
+        message: "Product not found",
+      });
+    }
+
+    const profit = calculateProfit({
+      rank: user.userRank,
+      price: +product.price,
+    });
+    const getPrice = parseFloat(product.price);
+
+    const wallet = await prismaInstance.wallet.findUnique({
+      where: { userId },
+    });
+
+    if (!wallet) {
+      return res.status(StatusCode.NotFound).json({
+        message: "Wallet not found",
+      });
+    }
+
+    const userHistory = await prismaInstance.usersHistory.findFirst({
+      where: {
+        userId,
+        productId,
+      },
+    });
+
+    if (submit) {
+      if (userHistory && userHistory.status === "completed") {
+        return res.status(StatusCode.OK).json({
+          message: "Product has already been submitted, balance not updated",
+          data: product,
+        });
+      }
+
+      await prismaInstance.wallet.update({
+        where: { userId },
+        data: {
+          todaysEarning: wallet.todaysEarning + getPrice,
+          totalProfit: wallet.totalProfit + profit,
+        },
+      });
+
+      if (userHistory) {
+        await prismaInstance.usersHistory.update({
+          where: { id: userHistory.id },
+          data: { status: "completed" },
+        });
+      } else {
+        await prismaInstance.usersHistory.create({
+          data: {
+            userId,
+            productId,
+            status: "completed",
+            quantity: 1,
+            hasFrozenBalanceUpdated: false,
+          },
+        });
+      }
+
+      await prismaInstance.mintOfTheDay.create({
+        data: {
+          userId,
+          productId,
+        },
+      });
+    } else {
+      if (userHistory && userHistory.hasFrozenBalanceUpdated) {
+        return res.status(StatusCode.OK).json({
+          message: "Product has already been viewed, balance not updated",
+          data: product,
+        });
+      }
+
+      await prismaInstance.wallet.update({
+        where: { userId },
+        data: {
+          frozenBalance: wallet.frozenBalance + getPrice,
+        },
+      });
+
+      if (userHistory) {
+        await prismaInstance.usersHistory.update({
+          where: { id: userHistory.id },
+          data: { hasFrozenBalanceUpdated: true },
+        });
+      } else {
+        await prismaInstance.usersHistory.create({
+          data: {
+            userId,
+            productId,
+            status: "pending",
+            quantity: 1,
+            hasFrozenBalanceUpdated: true,
+          },
+        });
+      }
+    }
+
+    return res.status(StatusCode.OK).json({
+      message: submit
+        ? "Product fetched successfully, wallet balance updated"
+        : "Product fetched successfully, frozen balance updated",
+      data: product,
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
       //@ts-ignore
       error: err?.message,
     });
