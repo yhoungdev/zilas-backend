@@ -4,6 +4,8 @@ import { prismaInstance } from "../../../utils/prisma";
 import { StatusCode } from "../../enums/statusEnum";
 import { signJwt } from "../../../utils/jwt";
 import { comparePasswords, hashPassword } from "../../../utils/hashPassword";
+import { changePasswordSchema } from "../../../validations/admin";
+import bcrypt from "bcrypt";
 
 const createAdminSchema = yup.object({
   email: yup.string().email().required(),
@@ -116,4 +118,57 @@ const loginAdminController = async (req: Request, res: Response) => {
   }
 };
 
-export { createAdminController, loginAdminController };
+const adminChangeUserPasswordController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    await changePasswordSchema.validate(req.body);
+    const { userId, newPassword } = req.body;
+
+    const user = await prismaInstance.users.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      return res.status(StatusCode.NotFound).json({
+        message: "User not found",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prismaInstance.users.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    if (err instanceof yup.ValidationError) {
+      res.status(StatusCode.BadRequest).json({
+        message: "Validation failed",
+        errors: err.errors,
+      });
+    } else {
+      console.error("Error in changePasswordController:", err);
+      res.status(StatusCode.InternalServerError).json({
+        message: "Internal server error",
+      });
+    }
+  }
+};
+
+export {
+  createAdminController,
+  loginAdminController,
+  adminChangeUserPasswordController,
+};

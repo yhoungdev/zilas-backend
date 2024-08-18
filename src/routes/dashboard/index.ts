@@ -13,6 +13,7 @@ import {
 import {
   loginAdminController,
   createAdminController,
+  adminChangeUserPasswordController,
 } from "../../controllers/admin/auth";
 import {
   adminAddProductController,
@@ -28,6 +29,7 @@ const router = express.Router();
 router.post("/admin/login", loginAdminController);
 router.post("/admin/create", createAdminController);
 router.post("/admin/sign-in-user", loginWithJwtController);
+router.patch("/admin/users/change-password", adminChangeUserPasswordController);
 router.post("/admin/users/fund-wallet/:id", adminFundUsersWallet);
 router.get("/admin/users", listAllUsersController);
 router.get("/admin/users/:id", getUserController);

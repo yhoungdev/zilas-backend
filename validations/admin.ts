@@ -11,3 +11,11 @@ export const updateProductSchema = yup.object({
   price: yup.number().optional(),
   image: yup.mixed().optional(),
 });
+
+export const changePasswordSchema = yup.object().shape({
+  userId: yup.string().required("User ID is required"),
+  newPassword: yup
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .required("New password is required"),
+});
