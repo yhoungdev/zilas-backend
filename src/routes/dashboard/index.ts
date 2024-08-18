@@ -4,6 +4,7 @@ import {
   banUserController,
   deleteUserController,
   getUserController,
+  listAllExternalWalletsController,
   listAllUsersController,
   updateUserController,
   updateUserRankController,
@@ -32,6 +33,10 @@ router.post("/admin/sign-in-user", loginWithJwtController);
 router.patch("/admin/users/change-password", adminChangeUserPasswordController);
 router.post("/admin/users/fund-wallet/:id", adminFundUsersWallet);
 router.get("/admin/users", listAllUsersController);
+router.get(
+  "/admin/users/fetch-external-wallet",
+  listAllExternalWalletsController,
+);
 router.get("/admin/users/:id", getUserController);
 router.patch("/admin/users/verify", verifyUserController);
 router.patch("/admin/users/update/:id", updateUserController);

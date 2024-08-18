@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prismaInstance } from "../../../utils/prisma";
 import { StatusCode } from "../../enums/statusEnum";
 import { RANK_CONSTANT } from "../../../constant";
+import { count } from "console";
 
 export const listAllUsersController = async (req: Request, res: Response) => {
   try {
@@ -126,7 +127,6 @@ export const verifyUserController = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 export const updateUserRankController = async (req: Request, res: Response) => {
   try {
@@ -366,6 +366,26 @@ export const deleteUserController = async (req: Request, res: Response) => {
       message: "Internal server error",
       //@ts-ignore
       error: err.message,
+    });
+  }
+};
+
+export const listAllExternalWalletsController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const externalWallets = await prismaInstance.externalWallet.findMany();
+
+    return res.status(StatusCode.OK).json({
+      message: "List of all external wallets",
+      data: externalWallets,
+      count: externalWallets.length,
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+      error: err instanceof Error ? err.message : "Unknown error",
     });
   }
 };
