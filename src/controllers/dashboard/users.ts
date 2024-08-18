@@ -8,6 +8,7 @@ export const listAllUsersController = async (req: Request, res: Response) => {
     const users = await prismaInstance.users.findMany({
       include: {
         Wallet: true,
+        ExternalWallet: true,
       },
     });
     res.status(StatusCode.OK).json({
