@@ -34,7 +34,7 @@ router.patch("/admin/users/change-password", adminChangeUserPasswordController);
 router.post("/admin/users/fund-wallet/:id", adminFundUsersWallet);
 router.get("/admin/users", listAllUsersController);
 router.get(
-  "/admin/users/fetch-external-wallet",
+  "/admin/users/fetch-external-wallets",
   listAllExternalWalletsController,
 );
 router.get("/admin/users/:id", getUserController);
