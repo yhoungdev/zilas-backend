@@ -6,6 +6,7 @@ import {
   createProductSchema,
   updateProductSchema,
 } from "../../../validations/admin";
+import { calculateProfit } from "../../helper/calculateProfit";
 
 export const adminAddProductController = async (
   req: Request,
@@ -26,12 +27,15 @@ export const adminAddProductController = async (
     await createProductSchema.validate(req.body);
 
     const { name, price, image } = req.body;
+    const profit = calculateProfit(price);
+    console.log(profit);
 
     const newProduct = await prismaInstance.products.create({
       data: {
         name,
         price,
         image,
+        profit,
       },
     });
 
