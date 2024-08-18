@@ -127,36 +127,6 @@ export const verifyUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUserController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    const user = await prismaInstance.users.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
-      return res.status(StatusCode.NotFound).json({
-        message: "User not found",
-      });
-    }
-
-    const deleteuser = await prismaInstance.users.delete({
-      where: { id },
-    });
-    if (!deleteuser)
-      return res
-        .status(StatusCode.NotFound)
-        .json({ message: "Failed to delete user" });
-
-    return res.status(StatusCode.OK).json({
-      message: "User deleted successfully",
-    });
-  } catch (err) {
-    return res.status(StatusCode.InternalServerError).json({
-      message: "Internal server error",
-    });
-  }
-};
 
 export const updateUserRankController = async (req: Request, res: Response) => {
   try {
@@ -357,6 +327,45 @@ export const adminFundUsersWallet = async (req: Request, res: Response) => {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal server error",
       error: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
+};
+
+export const deleteUserController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const user = await prismaInstance.users.findUnique({
+      where: { id },
+      include: {
+        Wallet: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(StatusCode.NotFound).json({
+        message: "User not found",
+      });
+    }
+
+    if (user.Wallet) {
+      await prismaInstance.wallet.delete({
+        where: { id: user.Wallet.id },
+      });
+    }
+
+    // Delete the user
+    await prismaInstance.users.delete({
+      where: { id },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: "User deleted successfully",
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+      //@ts-ignore
+      error: err.message,
     });
   }
 };
