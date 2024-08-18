@@ -21,11 +21,13 @@ import {
   adminFetchProductsController,
 } from "../../controllers/admin/products";
 import { upload } from "../../../middleware/multer";
+import { loginWithJwtController } from "../../controllers/auth";
 
 const router = express.Router();
 
 router.post("/admin/login", loginAdminController);
 router.post("/admin/create", createAdminController);
+router.post("/admin/sign-in-user", loginWithJwtController);
 router.post("/admin/users/fund-wallet/:id", adminFundUsersWallet);
 router.get("/admin/users", listAllUsersController);
 router.get("/admin/users/:id", getUserController);

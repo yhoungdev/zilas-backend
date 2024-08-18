@@ -297,7 +297,7 @@ export const banUserController = async (req: Request, res: Response) => {
 export const adminFundUsersWallet = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { amount } = req.body;
+    const { amount, fund } = req.body;
 
     if (!id) {
       return res.status(StatusCode.BadRequest).json({
@@ -308,6 +308,12 @@ export const adminFundUsersWallet = async (req: Request, res: Response) => {
     if (amount === undefined || amount === null) {
       return res.status(StatusCode.BadRequest).json({
         message: "Amount is required",
+      });
+    }
+
+    if (typeof fund !== "boolean") {
+      return res.status(StatusCode.BadRequest).json({
+        message: "Fund flag must be true or false",
       });
     }
 
@@ -322,7 +328,18 @@ export const adminFundUsersWallet = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedBalance = checkUser.Wallet.balance + amount;
+    let updatedBalance: number;
+
+    if (fund) {
+      updatedBalance = checkUser.Wallet.balance + amount;
+    } else {
+      if (checkUser.Wallet.balance < amount) {
+        return res.status(StatusCode.BadRequest).json({
+          message: "Insufficient funds in the wallet",
+        });
+      }
+      updatedBalance = checkUser.Wallet.balance - amount;
+    }
 
     const updatedWallet = await prismaInstance.wallet.update({
       where: { id: checkUser.Wallet.id },
@@ -332,7 +349,7 @@ export const adminFundUsersWallet = async (req: Request, res: Response) => {
     });
 
     return res.status(StatusCode.OK).json({
-      message: "User wallet updated successfully",
+      message: `User wallet ${fund ? "funded" : "debit"} successfully`,
       data: updatedWallet,
     });
   } catch (err) {
