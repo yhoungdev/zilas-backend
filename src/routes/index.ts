@@ -8,6 +8,7 @@ import { isAuthenticated } from "../../utils/isAuthenticated";
 import {
   fetchAllProducts,
   fetchProductsByUserRank,
+  fetchSingleProductById,
   submitPendingHistroyController,
   usersProductHistory,
   viewProduct,
@@ -24,7 +25,7 @@ router.get(
   isAuthenticated,
   fetchProductsByUserRank,
 );
-
+router.get("/user/products/:id", isAuthenticated, fetchSingleProductById);
 router.post("/user/products/view/:id", isAuthenticated, viewProduct);
 router.get("/user/products/history", isAuthenticated, usersProductHistory);
 router.post(

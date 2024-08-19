@@ -21,6 +21,34 @@ export const fetchAllProducts = async (req: Request, res: Response) => {
   }
 };
 
+
+export const fetchSingleProductById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const product = await prismaInstance.products.findUnique({
+      where: { id },
+    });
+
+    if (!product) {
+      return res.status(StatusCode.NotFound).json({
+        message: "Product not found",
+      });
+    }
+
+    return res.status(StatusCode.OK).json({
+      message: "Product fetched successfully",
+      data: product,
+    });
+  } catch (err) {
+    console.error("Error fetching product:", err);
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
+};
+
+
 export const fetchProductsByUserRank = async (req: Request, res: Response) => {
   const { id } = req.user as IExtendJwtPayload;
 
