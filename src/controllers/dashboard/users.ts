@@ -389,3 +389,34 @@ export const listAllExternalWalletsController = async (
     });
   }
 };
+
+export const updateUserResetCountController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    const user = await prismaInstance.users.findUnique({ where: { id } });
+
+    if (!user) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "User not found" });
+    }
+    const updatedUser = await prismaInstance.users.update({
+      where: { id },
+      data: { resetCount: (user.resetCount ?? 0) + 1 },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: "User reset count updated successfully",
+      data: updatedUser,
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      //@ts-ignore
+      message: err?.message,
+      error: "Internal Server Error",
+    });
+  }
+};

@@ -8,6 +8,7 @@ import {
   listAllUsersController,
   updateUserController,
   updateUserRankController,
+  updateUserResetCountController,
   verifyUserController,
 } from "../../controllers/dashboard/users";
 
@@ -39,6 +40,7 @@ router.get(
 );
 router.get("/admin/users/:id", getUserController);
 router.patch("/admin/users/verify", verifyUserController);
+router.patch("/admin/users/reset-count/:id", updateUserResetCountController);
 router.patch("/admin/users/update/:id", updateUserController);
 router.patch("/admin/users/update-rank/:id", updateUserRankController);
 router.patch("/admin/users/ban/:id", banUserController);
