@@ -9,6 +9,13 @@ import { StatusCode } from "../enums/statusEnum";
 import { comparePasswords, hashPassword } from "../../utils/hashPassword";
 import { decodeJwt, signJwt } from "../../utils/jwt";
 
+interface JwtPayload {
+  id: string;
+  username: string;
+  iat?: number;
+  exp?: number;
+}
+
 const createAccountController = async (req: Request, res: Response) => {
   try {
     await createAccountSchema.validate(req.body);
@@ -109,7 +116,6 @@ const loginController = async (req: Request, res: Response) => {
         message: "Invalid credentials",
       });
     }
-
     const token = signJwt({
       id: user.id,
       username: user.username,
@@ -137,25 +143,19 @@ const loginController = async (req: Request, res: Response) => {
     });
   } catch (err) {
     if (err instanceof yup.ValidationError) {
-      res.status(StatusCode.BadRequest).json({
+      return res.status(StatusCode.BadRequest).json({
         message: "Validation failed",
         errors: err.errors,
       });
     } else {
       console.error("Error in loginController:", err);
-      res.status(StatusCode.InternalServerError).json({
+      return res.status(StatusCode.InternalServerError).json({
         message: "Internal server error",
       });
     }
   }
 };
 
-interface JwtPayload {
-  id: string;
-  username: string;
-  iat?: number;
-  exp?: number;
-}
 
 const loginWithJwtController = async (req: Request, res: Response) => {
   try {
