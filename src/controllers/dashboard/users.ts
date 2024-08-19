@@ -370,25 +370,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const listAllExternalWalletsController = async (
-  req: Request,
-  res: Response,
-) => {
-  try {
-    const externalWallets = await prismaInstance.externalWallet.findMany();
 
-    return res.status(StatusCode.OK).json({
-      message: "List of all external wallets",
-      data: externalWallets,
-      count: externalWallets.length,
-    });
-  } catch (err) {
-    return res.status(StatusCode.InternalServerError).json({
-      message: "Internal server error",
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
-  }
-};
 
 export const updateUserResetCountController = async (
   req: Request,
@@ -420,3 +402,51 @@ export const updateUserResetCountController = async (
     });
   }
 };
+
+export const listAllExternalWalletsController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const externalWallets = await prismaInstance.externalWallet.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+
+    if (externalWallets.length === 0) {
+      return res.status(StatusCode.NotFound).json({
+        message: "No external wallets found",
+      });
+    }
+
+    const response = externalWallets.map((wallet) => ({
+      id: wallet.id,
+      address: wallet.address,
+      network: wallet.network,
+      createdAt: wallet.createdAt,
+      user: {
+        id: wallet.user.id,
+        username: wallet.user.username,
+      },
+    }));
+
+    return res.status(StatusCode.OK).json({
+      message: "List of all external wallets with user details",
+      data: response,
+      count: response.length,
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal server error",
+      error: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
+};
+
+
