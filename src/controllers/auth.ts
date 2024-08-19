@@ -87,6 +87,8 @@ const createAccountController = async (req: Request, res: Response) => {
       console.error("Error in createAccountController:", err);
       res.status(StatusCode.InternalServerError).json({
         message: "Internal server error",
+        //@ts-ignore
+        error: err.message,
       });
     }
   }

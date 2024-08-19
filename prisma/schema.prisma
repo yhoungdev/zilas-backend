@@ -28,7 +28,7 @@ enum AccountRank {
 model Users {
   id               String          @id @default(auto()) @map("_id") @db.ObjectId
   username         String          @unique
-  email            String?         @unique
+  email            String?
   phoneNumber      String          @unique
   withdrawPassword String
   password         String
