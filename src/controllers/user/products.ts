@@ -43,6 +43,11 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
         }[rank] || 0
       : 0;
 
+    const profit = calculateProfit({
+      price: 2,
+      rank,
+    });
+
     if (productCount === 0) {
       return res
         .status(StatusCode.BadRequest)
@@ -58,9 +63,12 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
       return data?.productId;
     });
 
-    const filteredProducts = products.filter(
-      (product) => !mapMinted?.includes(product.id),
-    );
+    const filteredProducts = products
+      .filter((product) => !mapMinted?.includes(product.id))
+      .map((product) => ({
+        ...product,
+        profit,
+      }));
 
     return res.status(StatusCode.OK).json({
       message: `Products count for ${user.userRank}`,

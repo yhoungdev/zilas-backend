@@ -113,6 +113,7 @@ const loginController = async (req: Request, res: Response) => {
     const token = signJwt({
       id: user.id,
       username: user.username,
+      rank: user.userRank,
     });
 
     await prismaInstance.users.update({

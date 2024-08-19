@@ -5,6 +5,7 @@ interface IData {
   id: string;
   username?: string;
   email?: string;
+  rank?: any;
 }
 
 export const signJwt = (data: IData) => {

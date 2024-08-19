@@ -5,6 +5,7 @@ import { JWT_HASH } from "../constant";
 
 interface AuthenticatedRequest extends Request {
   user?: string | JwtPayload;
+  rank?: string | JwtPayload;
 }
 
 export const isAuthenticated = (
@@ -24,6 +25,7 @@ export const isAuthenticated = (
     //@ts-ignore
     const decodedToken = jsonwebtoken.verify(token, JWT_HASH);
     req.user = decodedToken;
+    req.rank = decodedToken;
 
     next();
   } catch (err: any) {
