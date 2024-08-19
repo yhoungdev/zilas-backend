@@ -199,10 +199,6 @@ export const viewProduct = async (req: Request, res: Response) => {
       });
     }
 
-    const profit = calculateProfit({
-      rank: user.userRank,
-      price: +product.price,
-    });
     const getPrice = parseFloat(product.price);
 
     const wallet = await prismaInstance.wallet.findUnique({
@@ -214,6 +210,11 @@ export const viewProduct = async (req: Request, res: Response) => {
         message: "Wallet not found",
       });
     }
+
+    const profit = calculateProfit({
+      rank: user.userRank,
+      price: getPrice,
+    });
 
     const userHistory = await prismaInstance.usersHistory.findFirst({
       where: {
@@ -230,20 +231,31 @@ export const viewProduct = async (req: Request, res: Response) => {
         });
       }
 
-      await prismaInstance.wallet.update({
-        where: { userId },
-        data: {
-          todaysEarning: wallet.todaysEarning + getPrice,
-          totalProfit: wallet.totalProfit + profit,
-        },
-      });
+      if (userHistory && userHistory.status === "pending") {
+        await prismaInstance.wallet.update({
+          where: { userId },
+          data: {
+            balance: wallet.balance + getPrice,
+            frozenBalance: wallet.frozenBalance - getPrice,
+            todaysEarning: wallet.todaysEarning + getPrice,
+            totalProfit: wallet.totalProfit + profit,
+          },
+        });
 
-      if (userHistory) {
         await prismaInstance.usersHistory.update({
           where: { id: userHistory.id },
           data: { status: "completed" },
         });
       } else {
+        await prismaInstance.wallet.update({
+          where: { userId },
+          data: {
+            balance: wallet.balance - getPrice,
+            todaysEarning: wallet.todaysEarning + getPrice,
+            totalProfit: wallet.totalProfit + profit,
+          },
+        });
+
         await prismaInstance.usersHistory.create({
           data: {
             userId,
@@ -269,9 +281,16 @@ export const viewProduct = async (req: Request, res: Response) => {
         });
       }
 
+      if (wallet.balance < getPrice) {
+        return res.status(StatusCode.BadRequest).json({
+          message: "Insufficient balance",
+        });
+      }
+
       await prismaInstance.wallet.update({
         where: { userId },
         data: {
+          balance: wallet.balance - getPrice,
           frozenBalance: wallet.frozenBalance + getPrice,
         },
       });
@@ -279,7 +298,7 @@ export const viewProduct = async (req: Request, res: Response) => {
       if (userHistory) {
         await prismaInstance.usersHistory.update({
           where: { id: userHistory.id },
-          data: { hasFrozenBalanceUpdated: true },
+          data: { hasFrozenBalanceUpdated: true, status: "pending" },
         });
       } else {
         await prismaInstance.usersHistory.create({
@@ -296,8 +315,8 @@ export const viewProduct = async (req: Request, res: Response) => {
 
     return res.status(StatusCode.OK).json({
       message: submit
-        ? "Product fetched successfully, wallet balance updated"
-        : "Product fetched successfully, frozen balance updated",
+        ? "Product submitted successfully, wallet balance and profit updated"
+        : "Product viewed successfully, frozen balance updated",
       data: product,
     });
   } catch (err) {
@@ -308,3 +327,4 @@ export const viewProduct = async (req: Request, res: Response) => {
     });
   }
 };
+
