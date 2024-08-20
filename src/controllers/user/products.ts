@@ -140,6 +140,16 @@ export const usersProductHistory = async (req: Request, res: Response) => {
   const { id: userId } = req.user as IExtendJwtPayload;
 
   try {
+    const user = await prismaInstance.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(StatusCode.NotFound).json({
+        message: "User not found",
+      });
+    }
+
     const history = await prismaInstance.usersHistory.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -178,9 +188,12 @@ export const usersProductHistory = async (req: Request, res: Response) => {
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal server error",
+      //@ts-ignore
+      error: err?.message,
     });
   }
 };
+
 
 export const submitPendingHistroyController = async (
   req: Request,
