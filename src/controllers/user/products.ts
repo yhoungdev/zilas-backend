@@ -267,7 +267,7 @@ export const viewProduct = async (req: Request, res: Response) => {
       price: getPrice,
     });
 
-    const userHistory = await prismaInstance.usersHistory.findFirst({
+    const existingHistory = await prismaInstance.usersHistory.findFirst({
       where: {
         userId,
         productId,
@@ -275,14 +275,14 @@ export const viewProduct = async (req: Request, res: Response) => {
     });
 
     if (submit) {
-      if (userHistory && userHistory.status === "completed") {
+      if (existingHistory && existingHistory.status === "completed") {
         return res.status(StatusCode.OK).json({
           message: "Product has already been submitted, balance not updated",
           data: product,
         });
       }
 
-      if (userHistory && userHistory.status === "pending") {
+      if (existingHistory && existingHistory.status === "pending") {
         await prismaInstance.wallet.update({
           where: { userId },
           data: {
@@ -294,7 +294,7 @@ export const viewProduct = async (req: Request, res: Response) => {
         });
 
         await prismaInstance.usersHistory.update({
-          where: { id: userHistory.id },
+          where: { id: existingHistory.id },
           data: { status: "completed" },
         });
       } else {
@@ -325,7 +325,7 @@ export const viewProduct = async (req: Request, res: Response) => {
         },
       });
     } else {
-      if (userHistory && userHistory.hasFrozenBalanceUpdated) {
+      if (existingHistory && existingHistory.hasFrozenBalanceUpdated) {
         return res.status(StatusCode.OK).json({
           message: "Product has already been viewed, balance not updated",
           data: product,
@@ -346,10 +346,14 @@ export const viewProduct = async (req: Request, res: Response) => {
         },
       });
 
-      if (userHistory) {
+      if (existingHistory) {
         await prismaInstance.usersHistory.update({
-          where: { id: userHistory.id },
-          data: { hasFrozenBalanceUpdated: true, status: "pending" },
+          where: { id: existingHistory.id },
+          data: {
+            hasFrozenBalanceUpdated: true,
+            status: "pending",
+            quantity: existingHistory.quantity + 1,
+          },
         });
       } else {
         await prismaInstance.usersHistory.create({
@@ -378,4 +382,5 @@ export const viewProduct = async (req: Request, res: Response) => {
     });
   }
 };
+
 

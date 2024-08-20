@@ -96,12 +96,14 @@ model Admins {
 
 model UsersHistory {
   id                      String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId                  String   @unique @db.ObjectId
-  productId               String   @unique @db.ObjectId
+  userId                  String   @db.ObjectId
+  productId               String   @db.ObjectId
   status                  String
   quantity                Int
   hasFrozenBalanceUpdated Boolean?
   createdAt               DateTime @default(now())
+
+  @@unique([userId, productId])
 }
 
 datasource db {
