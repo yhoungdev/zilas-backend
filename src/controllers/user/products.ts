@@ -21,12 +21,32 @@ export const fetchAllProducts = async (req: Request, res: Response) => {
   }
 };
 
-
 export const fetchSingleProductById = async (req: Request, res: Response) => {
+  const { id: userId } = req.user as IExtendJwtPayload;
+
   try {
+    const user = await prismaInstance.users.findUnique({
+      where: { id: userId },
+    });
+
+    const rank = user?.userRank;
+
+    if (!user) {
+      return res.status(StatusCode.Unauthorized).json({
+        message: "User not found",
+      });
+    }
+
     const { id } = req.params;
     const product = await prismaInstance.products.findUnique({
       where: { id },
+    });
+
+    const price = Number(product?.price);
+
+    const productProfit = calculateProfit({
+      rank,
+      price,
     });
 
     if (!product) {
@@ -37,7 +57,10 @@ export const fetchSingleProductById = async (req: Request, res: Response) => {
 
     return res.status(StatusCode.OK).json({
       message: "Product fetched successfully",
-      data: product,
+      data: {
+        ...product,
+        profit: productProfit,
+      },
     });
   } catch (err) {
     console.error("Error fetching product:", err);
