@@ -25,9 +25,10 @@ router.get(
   isAuthenticated,
   fetchProductsByUserRank,
 );
+router.get("/user/products/history", isAuthenticated, usersProductHistory);
 router.get("/user/products/:id", isAuthenticated, fetchSingleProductById);
 router.post("/user/products/view/:id", isAuthenticated, viewProduct);
-router.get("/user/products/history", isAuthenticated, usersProductHistory);
+
 router.post(
   "/user/products/history/update/:recordId",
   isAuthenticated,
