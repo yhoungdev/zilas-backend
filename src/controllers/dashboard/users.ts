@@ -377,8 +377,6 @@ export const deleteUserController = async (req: Request, res: Response) => {
 };
 
 
-
-
 export const updateUserResetCountController = async (
   req: Request,
   res: Response,
@@ -456,4 +454,29 @@ export const listAllExternalWalletsController = async (
   }
 };
 
+export const deleteExternalWalletController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { walletId } = req.params;
+    const externalWallet = await prismaInstance.externalWallet.findUnique({
+      where: { id: walletId },
+    });
+
+    if (!externalWallet) {
+      return res.status(StatusCode.NotFound).json({
+        message: "External wallet not found",
+      });
+    }
+
+    await prismaInstance.externalWallet.delete({
+      where: { id: walletId },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: "External wallet deleted successfully",
+    });
+  } catch (err) {}
+};
 

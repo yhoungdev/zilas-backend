@@ -2,6 +2,7 @@ import express from "express";
 import {
   adminFundUsersWallet,
   banUserController,
+  deleteExternalWalletController,
   deleteUserController,
   getUserController,
   listAllExternalWalletsController,
@@ -45,6 +46,10 @@ router.patch("/admin/users/update/:id", updateUserController);
 router.patch("/admin/users/update-rank/:id", updateUserRankController);
 router.patch("/admin/users/ban/:id", banUserController);
 router.delete("/admin/users/:id", deleteUserController);
+router.delete(
+  "/admin/users/external-wallet/:walletId",
+  deleteExternalWalletController,
+);
 
 //products endpoint
 //#region product
