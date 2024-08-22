@@ -53,6 +53,7 @@ export const addExternalWalletController = async (
   }
 };
 
+
 export const getUserWallet = async (req: Request, res: Response) => {
   try {
     const { id } = req?.user as IExtendJwtPayload;
@@ -74,6 +75,26 @@ export const getUserWallet = async (req: Request, res: Response) => {
       return res.status(404).json({
         message: "User not found",
       });
+    }
+
+    const wallet = userWallet.Wallet;
+    if (wallet) {
+      const now = new Date();
+      const lastUpdated = wallet.updatedAt;
+
+      const hoursSinceLastUpdate =
+        (now.getTime() - new Date(lastUpdated).getTime()) / (1000 * 60 * 60);
+
+      if (hoursSinceLastUpdate >= 24) {
+        await prismaInstance.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: wallet.balance + wallet.todaysEarning,
+            todaysEarning: 0,
+            updatedAt: now,
+          },
+        });
+      }
     }
 
     return res.status(200).json({

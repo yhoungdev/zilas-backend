@@ -338,6 +338,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
       where: { id },
       include: {
         Wallet: true,
+        ExternalWallet: true,
       },
     });
 
@@ -347,13 +348,18 @@ export const deleteUserController = async (req: Request, res: Response) => {
       });
     }
 
+    if (user.ExternalWallet) {
+      await prismaInstance.externalWallet.delete({
+        where: { id: user.ExternalWallet.id },
+      });
+    }
+
     if (user.Wallet) {
       await prismaInstance.wallet.delete({
         where: { id: user.Wallet.id },
       });
     }
 
-    // Delete the user
     await prismaInstance.users.delete({
       where: { id },
     });
@@ -369,6 +375,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 
 
