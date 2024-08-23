@@ -171,6 +171,72 @@ export const submitPendingHistroyController = async (
   }
 };
 
+
+export const fetchProductsByUserRank = async (req: Request, res: Response) => {
+  const { id } = req.user as IExtendJwtPayload;
+
+  try {
+    const user = await prismaInstance.users.findFirst({ where: { id } });
+
+    if (!user) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "User not found" });
+    }
+
+    const rank = user.userRank;
+    const productCount = rank
+      ? {
+          VIP1: 10,
+          VIP2: 45,
+          VIP3: 50,
+          VIP4: 55,
+        }[rank] || 0
+      : 0;
+
+    if (productCount === 0) {
+      return res
+        .status(StatusCode.BadRequest)
+        .json({ message: "Invalid user rank" });
+    }
+
+    const products = await prismaInstance.products.findMany({
+      take: productCount,
+    });
+
+    const minted = await prismaInstance.mintOfTheDay.findMany({});
+    const mapMinted = minted?.map((data) => {
+      return data?.productId;
+    });
+
+    const filteredProducts = products
+      .filter((product) => !mapMinted?.includes(product.id))
+      .map((product) => {
+        const profit = calculateProfit({
+          price: parseInt(product.price),
+          rank,
+        });
+        return {
+          ...product,
+          profit,
+        };
+      });
+
+    return res.status(StatusCode.OK).json({
+      message: `Products count for ${user.userRank}`,
+      data: filteredProducts,
+      detail: "Filtered products based on counts ",
+      count: filteredProducts.length,
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      //@ts-ignore
+      message: err?.message,
+      error: "Internal Server Error",
+    });
+  }
+};
+
 export const viewProduct = async (req: Request, res: Response) => {
   const { id: productId } = req.params;
   const { id: userId } = req.user as IExtendJwtPayload;
@@ -326,71 +392,6 @@ export const viewProduct = async (req: Request, res: Response) => {
       message: "Internal server error",
       //@ts-ignore
       error: err?.message,
-    });
-  }
-};
-
-export const fetchProductsByUserRank = async (req: Request, res: Response) => {
-  const { id } = req.user as IExtendJwtPayload;
-
-  try {
-    const user = await prismaInstance.users.findFirst({ where: { id } });
-
-    if (!user) {
-      return res
-        .status(StatusCode.NotFound)
-        .json({ message: "User not found" });
-    }
-
-    const rank = user.userRank;
-    const productCount = rank
-      ? {
-          VIP1: 10,
-          VIP2: 45,
-          VIP3: 50,
-          VIP4: 55,
-        }[rank] || 0
-      : 0;
-
-    if (productCount === 0) {
-      return res
-        .status(StatusCode.BadRequest)
-        .json({ message: "Invalid user rank" });
-    }
-
-    const products = await prismaInstance.products.findMany({
-      take: productCount,
-    });
-
-    const minted = await prismaInstance.mintOfTheDay.findMany({});
-    const mapMinted = minted?.map((data) => {
-      return data?.productId;
-    });
-
-    const filteredProducts = products
-      .filter((product) => !mapMinted?.includes(product.id))
-      .map((product) => {
-        const profit = calculateProfit({
-          price: parseInt(product.price),
-          rank,
-        });
-        return {
-          ...product,
-          profit,
-        };
-      });
-
-    return res.status(StatusCode.OK).json({
-      message: `Products count for ${user.userRank}`,
-      data: filteredProducts,
-      detail: "Filtered products based on counts ",
-      count: filteredProducts.length,
-    });
-  } catch (err) {
-    return res.status(StatusCode.InternalServerError).json({
-      //@ts-ignore
-      message: err?.message,
-      error: "Internal Server Error",
     });
   }
 };
