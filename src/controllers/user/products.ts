@@ -129,49 +129,6 @@ export const usersProductHistory = async (req: Request, res: Response) => {
   }
 };
 
-export const submitPendingHistroyController = async (
-  req: Request,
-  res: Response,
-) => {
-  try {
-    const { recordId } = req.params;
-
-    if (!recordId) {
-      return res
-        .status(StatusCode.BadRequest)
-        .json({ message: "Record  ID is required" });
-    }
-
-    const checkProduct = await prismaInstance.usersHistory.findUnique({
-      where: { id: recordId },
-    });
-
-    if (!checkProduct) {
-      return res
-        .status(StatusCode.NotFound)
-        .json({ message: "Product not found" });
-    }
-
-    const updateProduct = await prismaInstance.usersHistory.update({
-      where: { id: recordId },
-      data: {
-        status: "completed",
-      },
-    });
-
-    return res
-      .status(StatusCode.OK)
-      .json({ message: "Product updated successfully", data: updateProduct });
-  } catch (err) {
-    return res.status(StatusCode.InternalServerError).json({
-      message: "Internal Server",
-      //@ts-ignore
-      error: err?.message,
-    });
-  }
-};
-
-
 export const fetchProductsByUserRank = async (req: Request, res: Response) => {
   const { id } = req.user as IExtendJwtPayload;
 
@@ -390,6 +347,103 @@ export const viewProduct = async (req: Request, res: Response) => {
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal server error",
+      //@ts-ignore
+      error: err?.message,
+    });
+  }
+};
+
+export const submitPendingHistroyController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { recordId } = req.params;
+
+    if (!recordId) {
+      return res
+        .status(StatusCode.BadRequest)
+        .json({ message: "Record ID is required" });
+    }
+
+    const historyRecord = await prismaInstance.usersHistory.findUnique({
+      where: { id: recordId },
+    });
+
+    if (!historyRecord) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "Product not found" });
+    }
+
+    if (historyRecord.status !== "pending") {
+      return res
+        .status(StatusCode.BadRequest)
+        .json({ message: "Product is not in a pending state" });
+    }
+
+    const user = await prismaInstance.users.findUnique({
+      where: { id: historyRecord.userId },
+    });
+
+    if (!user) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "User not found" });
+    }
+
+    const wallet = await prismaInstance.wallet.findUnique({
+      where: { userId: user.id },
+    });
+
+    if (!wallet) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "Wallet not found" });
+    }
+
+    const product = await prismaInstance.products.findUnique({
+      where: { id: historyRecord.productId },
+    });
+
+    if (!product) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "Product not found" });
+    }
+
+    const productPrice = parseFloat(product.price);
+
+    const profit = calculateProfit({
+      rank: user.userRank,
+      price: productPrice,
+    });
+
+    await prismaInstance.wallet.update({
+      where: { userId: user.id },
+      data: {
+        balance: wallet.balance + productPrice,
+        frozenBalance:
+          wallet.frozenBalance > 0
+            ? wallet.frozenBalance - productPrice
+            : wallet.frozenBalance,
+        todaysEarning: wallet.todaysEarning + profit,
+      },
+    });
+
+    const updateProduct = await prismaInstance.usersHistory.update({
+      where: { id: recordId },
+      data: {
+        status: "completed",
+      },
+    });
+
+    return res
+      .status(StatusCode.OK)
+      .json({ message: "Product updated successfully", data: updateProduct });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal Server Error",
       //@ts-ignore
       error: err?.message,
     });
