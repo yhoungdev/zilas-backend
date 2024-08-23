@@ -9,6 +9,7 @@ import {
   fetchAllProducts,
   fetchProductsByUserRank,
   fetchSingleProductById,
+  getUserMintOfTheDayController,
   submitPendingHistroyController,
   usersProductHistory,
   viewProduct,
@@ -20,6 +21,11 @@ router.get("/user/profile", isAuthenticated, getUserprofileController);
 router.post("/user/wallet/add", isAuthenticated, addExternalWalletController);
 router.get("/user/wallet/", isAuthenticated, getUserWallet);
 router.get("/user/products", isAuthenticated, fetchAllProducts);
+router.get(
+  "/user/products/daily-minted",
+  isAuthenticated,
+  getUserMintOfTheDayController,
+);
 router.get(
   "/user/products/base_on_rank",
   isAuthenticated,

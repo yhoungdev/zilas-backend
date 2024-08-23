@@ -369,7 +369,6 @@ export const fetchProductsByUserRank = async (req: Request, res: Response) => {
     });
   }
 };
-
 export const submitPendingHistroyController = async (
   req: Request,
   res: Response,
@@ -456,9 +455,17 @@ export const submitPendingHistroyController = async (
       },
     });
 
-    return res
-      .status(StatusCode.OK)
-      .json({ message: "Product updated successfully", data: updateProduct });
+    await prismaInstance.mintOfTheDay.create({
+      data: {
+        userId: user.id,
+        productId: product.id,
+      },
+    });
+
+    return res.status(StatusCode.OK).json({
+      message: "Product updated and added to Mint of the Day successfully",
+      data: updateProduct,
+    });
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
       message: "Internal Server Error",
@@ -467,3 +474,131 @@ export const submitPendingHistroyController = async (
     });
   }
 };
+
+export const getUserMintOfTheDayController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { userId } = req.user as { userId: string };
+
+    const userMintOfTheDay = await prismaInstance.mintOfTheDay.findMany({
+      where: { userId },
+    });
+
+    if (userMintOfTheDay.length === 0) {
+      return res
+        .status(StatusCode.NotFound)
+        .json({ message: "No Mint of the Day found for this user" });
+    }
+
+    return res.status(StatusCode.OK).json({
+      message: "User Mint of the Day retrieved successfully",
+      data: userMintOfTheDay,
+      count: userMintOfTheDay.length,
+    });
+  } catch (err) {
+    return res.status(StatusCode.InternalServerError).json({
+      message: "Internal Server Error",
+      //@ts-ignore
+      error: err?.message,
+    });
+  }
+};
+// export const submitPendingHistroyController = async (
+//   req: Request,
+//   res: Response,
+// ) => {
+//   try {
+//     const { recordId } = req.params;
+
+//     if (!recordId) {
+//       return res
+//         .status(StatusCode.BadRequest)
+//         .json({ message: "Record ID is required" });
+//     }
+
+//     const historyRecord = await prismaInstance.usersHistory.findUnique({
+//       where: { id: recordId },
+//     });
+
+//     if (!historyRecord) {
+//       return res
+//         .status(StatusCode.NotFound)
+//         .json({ message: "Product not found" });
+//     }
+
+//     if (historyRecord.status !== "pending") {
+//       return res
+//         .status(StatusCode.BadRequest)
+//         .json({ message: "Product is not in a pending state" });
+//     }
+
+//     const user = await prismaInstance.users.findUnique({
+//       where: { id: historyRecord.userId },
+//     });
+
+//     if (!user) {
+//       return res
+//         .status(StatusCode.NotFound)
+//         .json({ message: "User not found" });
+//     }
+
+//     const wallet = await prismaInstance.wallet.findUnique({
+//       where: { userId: user.id },
+//     });
+
+//     if (!wallet) {
+//       return res
+//         .status(StatusCode.NotFound)
+//         .json({ message: "Wallet not found" });
+//     }
+
+//     const product = await prismaInstance.products.findUnique({
+//       where: { id: historyRecord.productId },
+//     });
+
+//     if (!product) {
+//       return res
+//         .status(StatusCode.NotFound)
+//         .json({ message: "Product not found" });
+//     }
+
+//     const productPrice = parseFloat(product.price);
+
+//     const profit = calculateProfit({
+//       rank: user.userRank,
+//       price: productPrice,
+//     });
+
+//     await prismaInstance.wallet.update({
+//       where: { userId: user.id },
+//       data: {
+//         balance: wallet.balance + productPrice,
+//         frozenBalance:
+//           wallet.frozenBalance > 0
+//             ? wallet.frozenBalance - productPrice
+//             : wallet.frozenBalance,
+//         todaysEarning: wallet.todaysEarning + profit,
+//         totalProfit: wallet.totalProfit + profit,
+//       },
+//     });
+
+//     const updateProduct = await prismaInstance.usersHistory.update({
+//       where: { id: recordId },
+//       data: {
+//         status: "completed",
+//       },
+//     });
+
+//     return res
+//       .status(StatusCode.OK)
+//       .json({ message: "Product updated successfully", data: updateProduct });
+//   } catch (err) {
+//     return res.status(StatusCode.InternalServerError).json({
+//       message: "Internal Server Error",
+//       //@ts-ignore
+//       error: err?.message,
+//     });
+//   }
+// };
