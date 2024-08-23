@@ -314,8 +314,8 @@ export const viewProduct = async (req: Request, res: Response) => {
         await prismaInstance.wallet.update({
           where: { userId },
           data: {
-            balance: wallet.balance - getPrice,
-            todaysEarning: wallet.todaysEarning + profit, 
+            balance: wallet.balance,
+            todaysEarning: wallet.todaysEarning + profit,
             totalProfit: wallet.totalProfit + profit,
           },
         });
