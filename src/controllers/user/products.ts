@@ -494,8 +494,8 @@ export const getUserMintOfTheDayController = async (
 
     return res.status(StatusCode.OK).json({
       message: "User Mint of the Day retrieved successfully",
-      data: userMintOfTheDay,
       count: userMintOfTheDay.length,
+      data: userMintOfTheDay,
     });
   } catch (err) {
     return res.status(StatusCode.InternalServerError).json({
